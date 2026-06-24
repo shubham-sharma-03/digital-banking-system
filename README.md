@@ -56,7 +56,7 @@ Enterprise-grade Digital Banking Platform built using Java, Spring Boot, Postgre
 
 ### Login Page
 
-<img width="1920" alt="Login Page" src="https://github.com/user-attachments/assets/c294b88f-681d-4cf6-a4e0-471d95f7960f" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/a2c79bec-a4b0-4d66-b14a-044d1f8a998b" />
 
 ### Dashboard
 
