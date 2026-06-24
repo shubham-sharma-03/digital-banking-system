@@ -1,96 +1,78 @@
 # Enterprise Digital Banking System
 
-A production-style Digital Banking Platform built using Spring Boot Microservices Architecture.
+## Overview
 
-## Features
+Enterprise-grade Digital Banking Platform built using Java, Spring Boot, PostgreSQL and Microservices Architecture.
 
-### Authentication & Security
+### Features
+
+- Account Management
+- Fund Transfer
+- Loan Management
+- Card Management
+- Transaction History
 - JWT Authentication
-- Role Based Access Control
-- Secure Login & Registration
+- API Gateway
+- Service Discovery (Eureka)
+- Email Notifications
 
-### Account Management
-- Create Accounts
-- View Account Details
-- Balance Tracking
-- Customer Profile Management
+## Technology Stack
 
-### Fund Transfers
-- Account-to-Account Transfers
-- Transaction Validation
-- Real-Time Balance Updates
+- Java 17
+- Spring Boot
+- Spring Security
+- JWT
+- Spring Cloud Gateway
+- Eureka Server
+- PostgreSQL
+- Maven
+- REST APIs
+- HTML
+- CSS
+- JavaScript
 
-### Card Services
-- VISA / Mastercard / RuPay Cards
-- Card Transaction History
-- Card Blocking & Unblocking
-- PIN Change Functionality
-- Spending Limits & Available Balance
+## Microservices
 
-### Loan Management
-- Home Loan
-- Personal Loan
-- Car Loan
-- Education Loan
-- Loan Status Tracking
-- EMI Information
+- Account Service
+- Authentication Service
+- Card Service
+- Loan Service
+- Transaction Service
+- Email Service
+- API Gateway
+- Eureka Discovery Server
 
-### Transaction Service
-- Complete Transaction History
-- Debit/Credit Tracking
-- Transfer Auditing
+## Project Highlights
 
----
+- 8+ Microservices
+- 25+ REST APIs
+- JWT Security
+- PostgreSQL Database
+- Service Discovery using Eureka
+- API Gateway Routing
+- Enterprise Banking Workflow
 
-## Architecture
+## Screenshots
 
-```text
-Client
-   |
-API Gateway
-   |
-------------------------------------------------
-| Account Service                              |
-| Auth Service                                 |
-| Card Service                                 |
-| Loan Service                                 |
-| Transaction Service                          |
-| Email Service                                |
-------------------------------------------------
-   |
-PostgreSQL
+### Login Page
 
-echnology Stack
-Java 17
-Spring Boot
-Spring Security
-JWT
-Spring Cloud Gateway
-Eureka Server
-PostgreSQL
-Maven
-REST APIs
-HTML
-CSS
-JavaScript
-Microservices
-Account Service
-Authentication Service
-Card Service
-Loan Service
-Transaction Service
-Email Service
-API Gateway
-Eureka Discovery Server
+<img width="1920" alt="Login Page" src="https://github.com/user-attachments/assets/c294b88f-681d-4cf6-a4e0-471d95f7960f" />
 
-Project Highlights
-8+ Microservices
-25+ REST APIs
-JWT Security
-PostgreSQL Database
-Service Discovery using Eureka
-API Gateway Routing
-Enterprise Banking Workflow
+### Dashboard
 
-GitHub:https://github.com/shubham-sharma-03/digital-banking-system/
-Linkedin:https://www.linkedin.com/in/shubhamsharma2004/
+<img width="1920" alt="Dashboard" src="https://github.com/user-attachments/assets/1093641c-4220-4982-806b-4cc46b5541ba" />
+
+### Cards Module
+
+<img width="1920" alt="Cards" src="https://github.com/user-attachments/assets/63034e5a-9ce5-4e61-b613-144a6cea057f" />
+
+### Loans Module
+
+<img width="1920" alt="Loans" src="https://github.com/user-attachments/assets/aa3097e3-6b21-468a-9d87-f20c604e9791" />
+
+## Links
+
+## Connect With Me
+
+- GitHub: https://github.com/shubham-sharma-03/digital-banking-system
+- LinkedIn: https://www.linkedin.com/in/shubhamsharma2004/
