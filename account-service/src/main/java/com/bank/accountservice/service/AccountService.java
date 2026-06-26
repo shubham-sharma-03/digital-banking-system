@@ -5,13 +5,12 @@ import com.bank.accountservice.dto.TransactionRequest;
 import com.bank.accountservice.emailclient.EmailClient;
 import com.bank.accountservice.entity.Account;
 import com.bank.accountservice.repository.AccountRepository;
-import com.bank.emailservice.dto.EmailRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.bank.accountservice.client.CardClient;
 import com.bank.accountservice.dto.CardRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.bank.accountservice.dto.EmailRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;

@@ -22,13 +22,26 @@
             </div>
             <div class="l-eyebrow">Institutional Grade Platform</div>
             <div class="l-headline">Your wealth.<br><i>Engineered.</i></div>
-            <div class="l-body">Enterprise microservices architecture. Spring Cloud Gateway. JWT-secured. ACID-compliant transfers across every account, every time.</div>
+
+            <div class="l-body">Enterprise Banking Platform
+
+                Secure banking ecosystem built using Spring Boot
+                microservices architecture.
+
+                • JWT Authentication
+                • ACID-Compliant Transfers
+                • Card & PIN Management
+                • Loan Servicing
+                • Transaction Tracking
+                • PostgreSQL Persistence</div>
             <div class="l-rule"></div>
             <div class="l-stats">
                 <div><div class="l-sv">₹2.4B</div><div class="l-sl">Transactions</div></div>
                 <div><div class="l-sv">99.9%</div><div class="l-sl">Uptime SLA</div></div>
                 <div><div class="l-sv">256-bit</div><div class="l-sl">Encryption</div></div>
             </div>
+
+
         </div>
         <div class="l-foot">© 2026 MyBank Private Banking. All rights reserved.<br>Member FDIC · Equal Housing Lender · SEBI Registered</div>
     </div>
@@ -78,7 +91,7 @@
             </div>
             <button class="l-btn" id="l-submit" onclick="doLogin()">Sign In</button>
             <div class="l-or">or</div>
-            <div id="accountModal" class="mo">
+            <div id="accountModal" class="mo" style="display:none">
                 <div class="mo-box">
                     <div class="mo-head">
                         <div class="mo-title">Open New Account</div>
@@ -88,8 +101,7 @@
                     <div class="mo-body">
                         <div class="fg">
                             <div>
-                                <label>Full Name</label>
-                                <input class="fi" id="regName">
+                                <label>Full Name</label><input class="fi" id="regName">
                             </div>
 
                             <div>
@@ -349,7 +361,8 @@
                                     </select>
                                 </div>
                                 <div><label>Recipient Account Number</label><input class="fi" id="tr-recipient" placeholder="Enter account number"/></div>
-                                <div><label>Recipient IFSC Code</label><input class="fi" id="tr-ifsc" placeholder="e.g. SBIN0001234"/></div>
+                                <div><label>Recipient IFSC Code</label><input class="fi" id="tr-ifsc" placeholder="e.g. SBIN0001234" value="MYBNK0000001"/>
+                                </div>
                                 <div>
                                     <label>Amount (₹)</label>
                                     <div class="amt-wrap">
@@ -448,7 +461,7 @@
                 <div class="tc">
                     <div class="tc-head"><div class="tc-title">Active Loan Accounts</div><span class="bdg bdg-g"></span></div>
                     <table>
-                        <thead><tr><th>Loan Type</th><th>Lender</th><th>Principal</th><th>Rate</th><th>Tenure</th><th>Monthly EMI</th><th>Repayment Progress</th><th>Next Due</th></tr></thead>
+                        <thead><tr><th>Loan Type</th><th>Lender</th><th>Principal</th><th>Rate</th><th>Tenure</th><th>Monthly EMI</th><th>Loan Status</th><th>Next Due</th></tr></thead>
                         <tbody id="loans-tbody">
                         <tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">Loading loans...</td></tr>
                         </tbody>

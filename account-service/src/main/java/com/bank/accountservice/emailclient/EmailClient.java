@@ -1,6 +1,6 @@
 package com.bank.accountservice.emailclient;
 
-import com.bank.emailservice.dto.EmailRequest;
+import com.bank.accountservice.dto.EmailRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

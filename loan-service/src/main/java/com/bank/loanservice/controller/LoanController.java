@@ -1,10 +1,10 @@
 package com.bank.loanservice.controller;
 
+import com.bank.loanservice.dto.LoanPaymentRequest;
 import com.bank.loanservice.dto.LoanRequest;
 import com.bank.loanservice.entity.Loan;
 import com.bank.loanservice.service.LoanService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,5 +40,18 @@ public class LoanController {
 
         return ResponseEntity.ok(
                 loanService.getCustomerLoans(customerId));
+    }
+
+    @PostMapping("/{loanId}/payment")
+    public ResponseEntity<?> payLoan(
+            @PathVariable Long loanId,
+            @RequestBody LoanPaymentRequest request) {
+
+        return ResponseEntity.ok(
+                loanService.payLoan(
+                        loanId,
+                        request.getAmount()
+                )
+        );
     }
 }

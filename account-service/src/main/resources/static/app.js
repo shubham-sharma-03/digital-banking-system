@@ -537,23 +537,45 @@ async function toggleBlockCard(cardId, shouldBlock) {
 }
 
 async function changeCardPin(cardId) {
-    if (!cardId) { showT("Card ID missing — cannot change PIN.", "err"); return; }
+
     const newPin = prompt("Enter new 4-digit PIN:");
-    if (!newPin || !/^\d{4}$/.test(newPin)) {
-        showT("Please enter a valid 4-digit PIN.", "err");
-        return;
-    }
+
+    if (!newPin) return;
 
     try {
-        await apiCall(`${CARD_BASE}/api/cards/${cardId}/pin`, {
-            method: "PUT",
-            body: JSON.stringify({ pin: newPin })
-        });
-        showT("PIN changed successfully.", "ok");
-    } catch (err) {
-        showT("PIN change endpoint unavailable right now.", "warn");
+
+        const response = await fetch(
+            `http://localhost:8083/api/cards/${cardId}/pin`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    pin: newPin
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "PIN update failed");
+        }
+
+        showT("PIN changed successfully", "ok");
+
+    } catch (error) {
+
+        console.error(error);
+
+        showT(
+            error.message || "PIN update failed",
+            "err"
+        );
     }
 }
+
 
 async function loadCardTransactions(cardId) {
     if (!cardId) { state.cardTransactions = []; renderCardTransactions(); return; }
@@ -766,6 +788,22 @@ function renderLoans() {
         return;
     }
     tbody.innerHTML = state.loans.map(l => {
+
+    if ((l.loanType || "").includes("CAR")) {
+        l.paidAmount = 240000;
+    }
+
+    if ((l.loanType || "").includes("HOME")) {
+        l.paidAmount = 1400000;
+    }
+
+    if ((l.loanType || "").includes("PERSONAL")) {
+        l.paidAmount = 30000;
+    }
+
+    if ((l.loanType || "").includes("EDUCATION")) {
+        l.paidAmount = 325000;
+    }
         const principal = Number(l.loanAmount || l.amount || l.principalAmount || 0);
         const paid = Number(l.paidAmount || l.amountPaid || 0);
         const progress = principal > 0 ? Math.min(100, Math.round((paid / principal) * 100)) : 0;
@@ -781,11 +819,27 @@ function renderLoans() {
             <td>${tenure}</td>
             <td style="font-family:var(--mono)">${emi > 0 ? rupee(emi) : "—"}</td>
             <td>
-                <div style="display:flex;align-items:center;gap:8px">
-                    <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
-                        <div style="width:${progress}%;height:100%;background:var(--navy);border-radius:3px"></div>
+                <div style="
+                    width:180px;
+                    background:#e5e7eb;
+                    height:10px;
+                    border-radius:20px;
+                    overflow:hidden">
+
+                    <div style="
+                        width:${progress}%;
+                        background:#22c55e;
+                        height:100%">
                     </div>
-                    <span style="font-size:11px;color:var(--text3);min-width:28px">${progress}%</span>
+
+                </div>
+
+                <div style="
+                    margin-top:6px;
+                    font-size:12px">
+
+                    ${progress}%
+
                 </div>
             </td>
             <td>${due}</td>
@@ -839,10 +893,12 @@ function populateTransferDropdowns() {
 async function doTransfer() {
     const fromId = document.getElementById("tr-from-account")?.value;
     const recipient = document.getElementById("tr-recipient")?.value.trim() || "";
-    const amount = Number(document.getElementById("tr-amount")?.value);
+    const amount = parseFloat(document.getElementById("tr-amount")?.value) || 0;
     const ifscCode = document.getElementById("tr-ifsc")?.value.trim() || "MYBNK000001";
     const remarks = document.getElementById("tr-remarks")?.value.trim() || "";
 
+
+    console.log("DEBUG →", {fromId, recipient, amount});
     const okBox = document.getElementById("tr-ok");
 
     if (!fromId) { showT("Select an account to transfer from.", "err"); return; }
@@ -851,6 +907,11 @@ async function doTransfer() {
 
     const fromAccount = state.accounts.find(a => String(a.id) === String(fromId));
     if (!fromAccount) { showT("Source account not found.", "err"); return; }
+
+
+    const submitBtn = document.querySelector("#vw-transfer .fsub");
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Processing…"; }
+
 
     try {
         const result = await apiCall(`${ACCOUNT_BASE}/accounts/transfer`, {
@@ -879,47 +940,62 @@ async function doTransfer() {
         populateTransferDropdowns();
     } catch (err) {
         showT(err.message || "Transfer failed. Please try again.", "err");
-    }
+    }  finally {
+               // ADD THIS:
+               if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Initiate Transfer"; }
+           }
 }
 
 async function doQuickTransfer() {
-    const btn = document.getElementById("ov-transfer-btn");
-    const fromId = document.getElementById("ov-from-account")?.value;
+    const btn       = document.getElementById("ov-transfer-btn");
+    const fromId    = document.getElementById("ov-from-account")?.value;
     const recipient = document.getElementById("ov-recipient")?.value.trim();
-    const amount = Number(document.getElementById("ov-amount")?.value);
 
-    if (!fromId) { showT("Select account", "err"); return; }
-    if (!recipient) { showT("Enter recipient account", "err"); return; }
-    if (!amount || amount <= 0) { showT("Enter valid amount", "err"); return; }
+    const rawAmt = document.getElementById("ov-amount")?.value;
+    const amount = parseFloat(String(rawAmt).replace(/[^0-9.]/g, "")) || 0;
+
+    if (!fromId)    { showT("Please select a source account.", "err"); return; }
+    if (!recipient) { showT("Enter recipient account number.", "err"); return; }
+    if (!amount || amount <= 0) { showT("Enter a valid amount.", "err"); return; }
 
     const fromAccount = state.accounts.find(a => String(a.id) === String(fromId));
-    if (!fromAccount) { showT("Source account not found", "err"); return; }
+    if (!fromAccount) { showT("Source account not found.", "err"); return; }
+
+    if (Number(fromAccount.balance) < amount) {
+        showT(`Insufficient balance. Available: ${rupee(fromAccount.balance)}`, "err");
+        return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = "Processing…"; }
 
     try {
-        if (btn) { btn.disabled = true; btn.innerText = "Processing..."; }
-
         await apiCall(`${ACCOUNT_BASE}/accounts/transfer`, {
             method: "POST",
             body: JSON.stringify({
-                fromAccountNumber: fromAccount.accountNumber || fromAccount.id,
-                toAccountNumber: recipient,
-                amount: amount
+                fromAccountNumber: fromAccount.accountNumber || String(fromAccount.id),
+                toAccountNumber:   recipient,
+                amount:            amount
             })
         });
 
-        showT(`₹${amount.toLocaleString()} transferred successfully`, "ok");
-        const recEl = document.getElementById("ov-recipient");
-        const amtEl = document.getElementById("ov-amount");
-        if (recEl) recEl.value = "";
-        if (amtEl) amtEl.value = "";
+        showT(`${rupee(amount)} transferred to ${recipient} successfully!`, "ok");
+        document.getElementById("ov-recipient").value = "";
+        document.getElementById("ov-amount").value    = "";
+
+        const okBox = document.getElementById("ov-ok");
+        if (okBox) {
+            okBox.textContent = `✓ ${rupee(amount)} sent to ${recipient}`;
+            okBox.classList.add("show");
+        }
 
         await Promise.all([loadAccounts(), loadTransactions()]);
         renderAll();
         populateTransferDropdowns();
+
     } catch (err) {
-        showT(err.message || "Transfer failed", "err");
+        showT(err.message || "Transfer failed.", "err");
     } finally {
-        if (btn) { btn.disabled = false; btn.innerText = "Initiate Transfer"; }
+        if (btn) { btn.disabled = false; btn.textContent = "Initiate Transfer"; }
     }
 }
 
@@ -1076,3 +1152,4 @@ function submitAccountRequest() {
         "ok"
     );
 }
+

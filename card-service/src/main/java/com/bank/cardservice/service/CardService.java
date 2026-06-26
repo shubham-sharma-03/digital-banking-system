@@ -217,4 +217,16 @@ public class CardService {
             return new ArrayList<>();
         }
     }
+    public String changePin(Long cardId, String newPin) {
+
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+
+        card.setPin(newPin);
+
+        cardRepository.save(card);
+
+        return "PIN changed successfully";
+    }
+
 }

@@ -26,9 +26,12 @@ public class Loan {
 
     private Integer tenureMonths;
 
-private String loanType;
+    private String loanType;
 
     private Double emiAmount;
+
+    private Double paidAmount;
+    private Double remainingAmount;
 
     @Enumerated(EnumType.STRING)
     private LoanStatus status;

@@ -25,6 +25,7 @@ public class LoanService {
         Loan loan = Loan.builder()
                 .customerId(request.getCustomerId())
                 .loanAmount(request.getLoanAmount())
+                .remainingAmount(request.getLoanAmount())
                 .loanType(request.getLoanType())
                 .interestRate(10.5)
                 .tenureMonths(request.getTenureMonths())
@@ -69,6 +70,28 @@ public class LoanService {
                 (Math.pow(1 + monthlyRate, tenureMonths) - 1);
     }
 
+    public String payLoan(Long loanId, Double amount) {
 
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() ->
+                        new RuntimeException("Loan not found"));
+
+        double remaining =
+                loan.getRemainingAmount() - amount;
+
+        if (remaining < 0) {
+            remaining = 0;
+        }
+
+        loan.setRemainingAmount(remaining);
+
+        if (remaining == 0) {
+            loan.setStatus(LoanStatus.CLOSED);
+        }
+
+        loanRepository.save(loan);
+
+        return "Payment successful";
+    }
 
 }
