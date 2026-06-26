@@ -2,6 +2,7 @@ package com.bank.cardservice.controller;
 
 import com.bank.cardservice.dto.CardRequest;
 import com.bank.cardservice.dto.CardResponse;
+import com.bank.cardservice.dto.PinRequest;
 import com.bank.cardservice.entity.Card;
 import com.bank.cardservice.entity.CardTransaction;
 import com.bank.cardservice.service.CardService;
@@ -130,6 +131,34 @@ public class CardController {
         );
 
         return ResponseEntity.ok(transactions);
+    }
+
+    @PutMapping("/{id}/pin")
+    public ResponseEntity<?> changePin(
+            @PathVariable Long id,
+            @RequestBody PinRequest request) {
+
+        try {
+
+            String result =
+                    service.changePin(id, request.getPin());
+
+            return ResponseEntity.ok(
+                    Collections.singletonMap(
+                            "message",
+                            result
+                    )
+            );
+
+        } catch (Exception e) {
+
+            return ResponseEntity.badRequest().body(
+                    Collections.singletonMap(
+                            "error",
+                            e.getMessage()
+                    )
+            );
+        }
     }
 
 }
