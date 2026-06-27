@@ -42,7 +42,6 @@ public class Account {
         if (this.balance == null) {
             this.balance = 0.0;
 
-
             if (this.ifscCode == null || this.ifscCode.isEmpty()) {
                 this.ifscCode = "MYBK0001234";
             }
