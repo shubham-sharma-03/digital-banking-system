@@ -6,7 +6,6 @@ import com.bank.accountservice.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -110,6 +109,7 @@ public class AccountController {
             return ResponseEntity.ok(Map.of("message", result));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            
         }
     }
 }
