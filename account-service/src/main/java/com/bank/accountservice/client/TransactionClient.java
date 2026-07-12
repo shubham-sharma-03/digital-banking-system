@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "transaction-service",
-        url = "http://localhost:8084")
+@FeignClient(name = "transaction-service")
 public interface TransactionClient {
 
     @PostMapping("/transactions")

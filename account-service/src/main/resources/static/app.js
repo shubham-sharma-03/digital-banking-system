@@ -2,11 +2,13 @@
    MyBank — app.js  (PRODUCTION FIXED v4 — 3 CARDS DISPLAY FIX)
    ============================================================ */
 
-const ACCOUNT_BASE     = "http://localhost:8081";
-const CARD_BASE        = "http://localhost:8083";
-const LOAN_BASE        = "http://localhost:8082";
-const TRANSACTION_BASE = "http://localhost:8084";
-const AUTH_BASE        = "http://localhost:8085";
+const GATEWAY = "http://localhost:9090";
+
+const ACCOUNT_BASE = GATEWAY;
+const CARD_BASE = GATEWAY;
+const LOAN_BASE = GATEWAY;
+const TRANSACTION_BASE = GATEWAY;
+const AUTH_BASE = GATEWAY;
 
 /* ── Session & State ── */
 let session = { token: null, userId: null, email: null, role: null, name: null };
@@ -545,12 +547,10 @@ async function changeCardPin(cardId) {
     try {
 
         const response = await fetch(
-            `http://localhost:8083/api/cards/${cardId}/pin`,
+            `${CARD_BASE}/api/cards/${cardId}/pin`,
             {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: authHeaders(),
                 body: JSON.stringify({
                     pin: newPin
                 })
@@ -620,8 +620,8 @@ async function loadLoans() {
     const customerId = session.userId ?? session.customerId ?? state.accounts[0]?.customerId ?? state.accounts[0]?.userId ?? 1;
     console.log("[MyBank] loading loans for customerId =", customerId);
     try {
-        const data = await apiCall(`${LOAN_BASE}/api/loans/customer/${customerId}`);
-        state.loans = Array.isArray(data) ? data : [];
+    const data = await apiCall(`${LOAN_BASE}/api/loans/customer/${customerId}`);
+           state.loans = Array.isArray(data) ? data : [];
     } catch (e) {
         state.loans = [];
         throw e;
@@ -1016,7 +1016,7 @@ async function submitLoan() {
     const customerId = session.userId ?? session.customerId ?? state.accounts[0]?.customerId ?? state.accounts[0]?.userId ?? 1;
 
     try {
-        await apiCall(`${LOAN_BASE}/api/loans`, {
+        await apiCall(`${LOAN_BASE}/api/loans/apply`, {
             method: "POST",
             body: JSON.stringify({
                 customerId,

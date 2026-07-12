@@ -6,84 +6,79 @@
   '  |____| .__|_| |_|_| |_\__, | / / / /
  =========|_|==============|___/=/_/_/_/
 
- :: Spring Boot ::               (v3.5.14)
+ :: Spring Boot ::                (v3.5.4)
 
-2026-06-29T09:11:28.976Z  INFO 1 --- [account-service] [           main] c.b.a.AccountServiceApplication          : Starting AccountServiceApplication v0.0.1-SNAPSHOT using Java 17.0.19 with PID 1 (/app/app.jar started by root in /app)
-2026-06-29T09:11:28.992Z  INFO 1 --- [account-service] [           main] c.b.a.AccountServiceApplication          : No active profile set, falling back to 1 default profile: "default"
-2026-06-29T09:11:34.784Z  INFO 1 --- [account-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-06-29T09:11:35.694Z  INFO 1 --- [account-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 849 ms. Found 2 JPA repository interfaces.
-2026-06-29T09:11:38.176Z  INFO 1 --- [account-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=693d86f4-544d-3d6b-8105-9682fa58b9de
-2026-06-29T09:11:42.449Z  INFO 1 --- [account-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
-2026-06-29T09:11:42.487Z  INFO 1 --- [account-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-06-29T09:11:42.488Z  INFO 1 --- [account-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.54]
-2026-06-29T09:11:42.593Z  INFO 1 --- [account-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-06-29T09:11:42.595Z  INFO 1 --- [account-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 13101 ms
-2026-06-29T09:11:44.154Z  INFO 1 --- [account-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-06-29T09:11:44.576Z  INFO 1 --- [account-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.49.Final
-2026-06-29T09:11:44.801Z  INFO 1 --- [account-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-06-29T09:11:46.334Z  INFO 1 --- [account-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-06-29T09:11:46.450Z  INFO 1 --- [account-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-06-29T09:11:47.247Z  INFO 1 --- [account-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@254cc548
-2026-06-29T09:11:47.257Z  INFO 1 --- [account-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-06-29T09:11:47.709Z  INFO 1 --- [account-service] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-07-07T15:39:10.303Z  INFO 1 --- [account-service] [           main] c.b.a.AccountServiceApplication          : Starting AccountServiceApplication v0.0.1-SNAPSHOT using Java 17.0.19 with PID 1 (/app/app.jar started by root in /app)
+2026-07-07T15:39:10.337Z  INFO 1 --- [account-service] [           main] c.b.a.AccountServiceApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-07-07T15:39:16.176Z  INFO 1 --- [account-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-07-07T15:39:16.844Z  INFO 1 --- [account-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 626 ms. Found 2 JPA repository interfaces.
+2026-07-07T15:39:19.414Z  INFO 1 --- [account-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=3907a1b8-d6c8-3997-ae1c-7b9b9a46dfe0
+2026-07-07T15:39:23.432Z  INFO 1 --- [account-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-07-07T15:39:23.494Z  INFO 1 --- [account-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-07T15:39:23.495Z  INFO 1 --- [account-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-07-07T15:39:23.645Z  INFO 1 --- [account-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-07-07T15:39:23.648Z  INFO 1 --- [account-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 13036 ms
+2026-07-07T15:39:24.766Z  INFO 1 --- [account-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-07-07T15:39:24.954Z  INFO 1 --- [account-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-07-07T15:39:25.139Z  INFO 1 --- [account-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-07-07T15:39:25.935Z  INFO 1 --- [account-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-07-07T15:39:26.008Z  INFO 1 --- [account-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-07T15:39:26.595Z  INFO 1 --- [account-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@56d742ad
+2026-07-07T15:39:26.599Z  INFO 1 --- [account-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-07T15:39:26.743Z  INFO 1 --- [account-service] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
-	Database version: 17.10
+	Database version: 16.14
 	Autocommit mode: undefined/unknown
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-06-29T09:11:50.606Z  INFO 1 --- [account-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-07-07T15:39:27.916Z  INFO 1 --- [account-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
 Hibernate: create table accounts (account_number varchar(25) not null, account_holder_name varchar(255) not null, account_type varchar(255) not null, balance float(53) not null, branch varchar(255), email varchar(255) not null, ifsc_code varchar(255), primary key (account_number))
 Hibernate: create table transactions (id bigint generated by default as identity, account_number varchar(255) not null, amount float(53) not null, balance_after float(53), description varchar(255), reference_id varchar(50), transaction_date timestamp(6), transaction_type varchar(255), primary key (id))
 Hibernate: alter table if exists accounts drop constraint if exists uk_email
-2026-06-29T09:11:50.728Z  WARN 1 --- [account-service] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
-2026-06-29T09:11:50.731Z  WARN 1 --- [account-service] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : constraint "uk_email" of relation "accounts" does not exist, skipping
+2026-07-07T15:39:27.977Z  WARN 1 --- [account-service] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Warning Code: 0, SQLState: 00000
+2026-07-07T15:39:27.977Z  WARN 1 --- [account-service] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : constraint "uk_email" of relation "accounts" does not exist, skipping
 Hibernate: alter table if exists accounts add constraint uk_email unique (email)
-2026-06-29T09:11:50.742Z  INFO 1 --- [account-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-06-29T09:11:52.001Z  WARN 1 --- [account-service] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-06-29T09:11:52.702Z  INFO 1 --- [account-service] [           main] o.s.c.openfeign.FeignClientFactoryBean   : For 'email-service' URL not provided. Will try picking an instance via load-balancing.
-2026-06-29T09:11:54.560Z  INFO 1 --- [account-service] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
-2026-06-29T09:11:55.017Z  WARN 1 --- [account-service] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+2026-07-07T15:39:27.983Z  INFO 1 --- [account-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-07-07T15:39:28.378Z  WARN 1 --- [account-service] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-07T15:39:28.610Z  INFO 1 --- [account-service] [           main] o.s.c.openfeign.FeignClientFactoryBean   : For 'email-service' URL not provided. Will try picking an instance via load-balancing.
+2026-07-07T15:39:29.411Z  INFO 1 --- [account-service] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-07-07T15:39:29.870Z  WARN 1 --- [account-service] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
 
-Using generated security password: 15285ae2-0cbc-4acc-886b-98b47cf2a15d
+Using generated security password: 30a69df1-f284-4ff1-b86e-6f2f24d87f5b
 
 This generated password is for development use only. Your security configuration must be updated before running your application in production.
 
-2026-06-29T09:11:55.040Z  INFO 1 --- [account-service] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-06-29T09:11:55.444Z  INFO 1 --- [account-service] [           main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
-2026-06-29T09:11:56.318Z  INFO 1 --- [account-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
-2026-06-29T09:11:56.383Z  WARN 1 --- [account-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
-2026-06-29T09:11:56.423Z  INFO 1 --- [account-service] [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
-2026-06-29T09:11:56.468Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
-2026-06-29T09:11:56.471Z  INFO 1 --- [account-service] [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
-2026-06-29T09:11:56.479Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
-2026-06-29T09:11:56.480Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
-2026-06-29T09:11:56.480Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
-2026-06-29T09:11:56.480Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
-2026-06-29T09:11:56.480Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
-2026-06-29T09:11:56.480Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
-2026-06-29T09:11:56.480Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
-2026-06-29T09:11:56.864Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
-2026-06-29T09:11:56.867Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
-2026-06-29T09:11:56.870Z  INFO 1 --- [account-service] [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
-2026-06-29T09:11:56.872Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1782724316872 with initial instances count: 0
-2026-06-29T09:11:56.881Z  INFO 1 --- [account-service] [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application ACCOUNT-SERVICE with eureka with status UP
-2026-06-29T09:11:56.882Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1782724316882, current=UP, previous=STARTING]
-2026-06-29T09:11:56.884Z  INFO 1 --- [account-service] [foReplicator-%d] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_ACCOUNT-SERVICE/a96395641d7d:account-service:8081: registering service...
-2026-06-29T09:11:56.901Z  INFO 1 --- [account-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
-2026-06-29T09:11:56.902Z  INFO 1 --- [account-service] [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8081
-2026-06-29T09:11:56.914Z  INFO 1 --- [account-service] [           main] c.b.a.AccountServiceApplication          : Started AccountServiceApplication in 30.951 seconds (process running for 34.248)
-2026-06-29T09:11:56.927Z  INFO 1 --- [account-service] [foReplicator-%d] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_ACCOUNT-SERVICE/a96395641d7d:account-service:8081 - registration status: 204
-2026-06-29T09:12:26.866Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
-2026-06-29T09:12:26.866Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
-2026-06-29T09:12:26.866Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
-2026-06-29T09:12:26.866Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Application is null : false
-2026-06-29T09:12:26.867Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
-2026-06-29T09:12:26.867Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Application version is -1: false
-2026-06-29T09:12:26.867Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
-2026-06-29T09:12:26.904Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : The response status is 200
-2026-06-29T09:16:56.461Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
-2026-06-29T09:17:33.009Z  INFO 1 --- [account-service] [nio-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-06-29T09:17:33.009Z  INFO 1 --- [account-service] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-06-29T09:17:33.013Z  INFO 1 --- [account-service] [nio-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-07-07T15:39:29.885Z  INFO 1 --- [account-service] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-07-07T15:39:31.217Z  INFO 1 --- [account-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2026-07-07T15:39:31.323Z  WARN 1 --- [account-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-07-07T15:39:31.385Z  INFO 1 --- [account-service] [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2026-07-07T15:39:31.421Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2026-07-07T15:39:31.425Z  INFO 1 --- [account-service] [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-07-07T15:39:31.439Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2026-07-07T15:39:31.439Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2026-07-07T15:39:31.439Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2026-07-07T15:39:31.439Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2026-07-07T15:39:31.439Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2026-07-07T15:39:31.440Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2026-07-07T15:39:31.440Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2026-07-07T15:39:32.026Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2026-07-07T15:39:32.028Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2026-07-07T15:39:32.031Z  INFO 1 --- [account-service] [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2026-07-07T15:39:32.034Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1783438772033 with initial instances count: 0
+2026-07-07T15:39:32.044Z  INFO 1 --- [account-service] [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application ACCOUNT-SERVICE with eureka with status UP
+2026-07-07T15:39:32.045Z  INFO 1 --- [account-service] [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1783438772045, current=UP, previous=STARTING]
+2026-07-07T15:39:32.047Z  INFO 1 --- [account-service] [foReplicator-%d] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_ACCOUNT-SERVICE/e92aab9e5282:account-service:8081: registering service...
+2026-07-07T15:39:32.067Z  INFO 1 --- [account-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-07-07T15:39:32.068Z  INFO 1 --- [account-service] [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8081
+2026-07-07T15:39:32.088Z  INFO 1 --- [account-service] [           main] c.b.a.AccountServiceApplication          : Started AccountServiceApplication in 24.779 seconds (process running for 27.368)
+2026-07-07T15:39:32.221Z  INFO 1 --- [account-service] [foReplicator-%d] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_ACCOUNT-SERVICE/e92aab9e5282:account-service:8081 - registration status: 204
+2026-07-07T15:40:02.027Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2026-07-07T15:40:02.027Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2026-07-07T15:40:02.027Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2026-07-07T15:40:02.027Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2026-07-07T15:40:02.027Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2026-07-07T15:40:02.027Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Application version is -1: false
+2026-07-07T15:40:02.027Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2026-07-07T15:40:02.043Z  INFO 1 --- [account-service] [reshExecutor-%d] com.netflix.discovery.DiscoveryClient    : The response status is 200

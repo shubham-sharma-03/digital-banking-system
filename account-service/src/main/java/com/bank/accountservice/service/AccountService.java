@@ -2,7 +2,7 @@ package com.bank.accountservice.service;
 
 import com.bank.accountservice.client.TransactionClient;
 import com.bank.accountservice.dto.TransactionRequest;
-import com.bank.accountservice.emailclient.EmailClient;
+import com.bank.accountservice.client.EmailClient;
 import com.bank.accountservice.entity.Account;
 import com.bank.accountservice.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,13 +3,16 @@ package com.bank.transactionservice.client;
 import com.bank.transactionservice.dto.AccountResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "account-service", url = "http://localhost:8081")
+@FeignClient(name = "account-service")
 public interface AccountClient {
 
-    @GetMapping("/accounts/by-email")
-    List<AccountResponse> getAccountsByEmail(@RequestParam("email") String email);
+    @GetMapping("/accounts/email/{email}")
+    AccountResponse getAccountByEmail(
+            @PathVariable("email") String email
+    );
+
 }

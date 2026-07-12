@@ -7,13 +7,11 @@ import com.bank.transactionservice.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:63342")
 @Service
 public class TransactionService {
     @Autowired
@@ -117,30 +115,24 @@ public class TransactionService {
 
     // ── GET ALL TRANSACTIONS FOR USER (by email -> accounts -> transactions) ──
     public List<Transaction> getAllTransactionsForUser(String email) {
+
         if (email == null || email.isBlank()) {
             throw new RuntimeException("Email is required");
         }
 
-        List<AccountResponse> accounts;
+        AccountResponse account;
 
         try {
-            accounts = accountClient.getAccountsByEmail(email);
+            account = accountClient.getAccountByEmail(email);
         } catch (Exception e) {
             System.err.println("[TransactionService] Could not reach account-service: " + e.getMessage());
             return Collections.emptyList();
         }
 
-        if (accounts == null || accounts.isEmpty()) {
-            System.out.println("[TransactionService] No accounts found for email: " + email);
+        if (account == null) {
             return Collections.emptyList();
         }
 
-        List<String> accountNumbers = accounts.stream()
-                .map(AccountResponse::getAccountNumber)
-                .toList();
-
-        System.out.println("[TransactionService] Found accounts: " + accountNumbers);
-
-        return repository.findByAccountNumberIn(accountNumbers);
+        return repository.findByAccountNumber(account.getAccountNumber());
     }
 }

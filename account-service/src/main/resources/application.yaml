@@ -33,3 +33,7 @@ eureka:
   instance:
     hostname: account-service
     prefer-ip-address: false
+
+    services:
+      card-service: http://card-service:8083
+      transaction-service: http://transaction-service:8084

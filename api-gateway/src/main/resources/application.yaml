@@ -7,38 +7,44 @@ spring:
 
   cloud:
     gateway:
-      server:
-        webflux:
-          routes:
-            - id: account-service
-              uri: http://account-service:8081
-              predicates:
-                - Path=/accounts/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:8081"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
 
-            - id: loan-service
-              uri: http://loan-service:8082
-              predicates:
-                - Path=/loans/**
+      routes:
+        - id: account-service
+          uri: lb://ACCOUNT-SERVICE
+          predicates:
+            - Path=/accounts/**
 
-            - id: card-service
-              uri: http://card-service:8083
-              predicates:
-                - Path=/cards/**
+        - id: loan-service
+          uri: lb://LOAN-SERVICE
+          predicates:
+            - Path=/api/loans/**
 
-            - id: transaction-service
-              uri: http://transaction-service:8084
-              predicates:
-                - Path=/transactions/**
+        - id: card-service
+          uri: lb://CARD-SERVICE
+          predicates:
+            - Path=/api/cards/**
 
-            - id: auth-service
-              uri: http://auth-service:8085
-              predicates:
-                - Path=/api/auth/**
+        - id: transaction-service
+          uri: lb://TRANSACTION-SERVICE
+          predicates:
+            - Path=/transactions/**
 
-            - id: email-service
-              uri: http://email-service:8086
-              predicates:
-              - Path=/email/**
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/**
+
+        - id: email-service
+          uri: lb://EMAIL-SERVICE
+          predicates:
+            - Path=/email/**
 
 eureka:
   client:
@@ -46,8 +52,15 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
-
   instance:
-    hostname: api-gateway
-    prefer-ip-address: false
+    prefer-ip-address: true
 
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: gateway,health
+
+    logging:
+      level:
+        org.springframework.cloud.gateway: TRACE

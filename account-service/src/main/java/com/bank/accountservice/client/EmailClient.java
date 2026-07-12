@@ -1,4 +1,4 @@
-package com.bank.accountservice.emailclient;
+package com.bank.accountservice.client;
 
 import com.bank.accountservice.dto.EmailRequest;
 import org.springframework.cloud.openfeign.FeignClient;
