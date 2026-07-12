@@ -21,7 +21,6 @@ public class AuthController {
         System.out.println("REGISTER API HIT");
 
         return ResponseEntity.ok(authService.register(request));
-
     }
 
     @PostMapping("/login")
