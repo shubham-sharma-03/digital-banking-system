@@ -6,9 +6,9 @@ spring:
     name: loan-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_XpJGQHE46AIt
 
   jpa:
     hibernate:
@@ -20,7 +20,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
 
   instance:
     hostname: loan-service
