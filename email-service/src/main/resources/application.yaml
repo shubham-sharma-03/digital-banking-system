@@ -3,21 +3,25 @@ server:
 
 spring:
   application:
-    name: email-service
+    name: loan-service
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: sharmashubham05275@gmail.com
-    password: eyoy gdhr ripw ghlk
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+  datasource:
+    url: jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_XpJGQHE46AIt
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
 
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+
+  instance:
+    hostname: loan-service
+    prefer-ip-address: false

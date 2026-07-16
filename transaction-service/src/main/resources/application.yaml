@@ -3,12 +3,12 @@ server:
 
 spring:
   application:
-    name: transaction-service
+    name: loan-service
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/transaction_db
-    username: postgres
-    password: password
+    url: jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_XpJGQHE46AIt
 
   jpa:
     hibernate:
@@ -17,5 +17,11 @@ spring:
 
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+
+  instance:
+    hostname: loan-service
+    prefer-ip-address: false
