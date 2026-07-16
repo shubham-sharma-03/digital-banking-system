@@ -1,11 +1,20 @@
-server:
-  port: 8761
+# Build Stage
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 
-spring:
-  application:
-    name: eureka-server
+WORKDIR /app
 
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+COPY pom.xml .
+COPY src ./src
+
+RUN mvn clean package -DskipTests
+  
+  # Runtime Stage
+FROM eclipse-temurin:17-jdk
+
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 8761
+
+ENTRYPOINT ["java","-jar","app.jar"]
