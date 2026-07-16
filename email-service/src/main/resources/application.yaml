@@ -2,7 +2,18 @@ server:
   port: 8086
 
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: shubhamsharmass7715@gmail.com
+    password: Shubh@7715
+
   application:
+    mail:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
     name: loan-service
 
   datasource:
