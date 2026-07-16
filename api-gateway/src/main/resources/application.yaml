@@ -51,7 +51,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka
   instance:
     prefer-ip-address: true
 
