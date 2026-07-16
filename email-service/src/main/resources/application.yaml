@@ -21,7 +21,3 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: https://eureka-server-lazp.onrender.com/eureka/
-
-  instance:
-    hostname: loan-service
-    prefer-ip-address: false
