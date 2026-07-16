@@ -11,8 +11,9 @@ import java.util.List;
 public interface AccountClient {
 
     @GetMapping("/accounts/email/{email}")
-    AccountResponse getAccountByEmail(
-            @PathVariable("email") String email
-    );
+    AccountResponse getAccountByEmail(@PathVariable("email") String email);
 
+    // ADD THIS: Get all accounts for a user
+    @GetMapping("/accounts/user/{email}")
+    List<AccountResponse> getAccountsByEmail(@PathVariable("email") String email);
 }

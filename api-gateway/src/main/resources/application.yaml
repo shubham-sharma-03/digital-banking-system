@@ -55,12 +55,12 @@ eureka:
   instance:
     prefer-ip-address: true
 
-    management:
-      endpoints:
-        web:
-          exposure:
-            include: gateway,health
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway,health
 
-    logging:
-      level:
-        org.springframework.cloud.gateway: TRACE
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE

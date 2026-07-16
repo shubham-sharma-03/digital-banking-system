@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -113,26 +114,37 @@ public class TransactionService {
         repository.deleteById(id);
     }
 
-    // ── GET ALL TRANSACTIONS FOR USER (by email -> accounts -> transactions) ──
+    // ── GET ALL TRANSACTIONS FOR USER (ALL accounts) ──
     public List<Transaction> getAllTransactionsForUser(String email) {
-
         if (email == null || email.isBlank()) {
             throw new RuntimeException("Email is required");
         }
 
-        AccountResponse account;
-
+        List<AccountResponse> accounts;
         try {
-            account = accountClient.getAccountByEmail(email);
+            accounts = accountClient.getAccountsByEmail(email);
         } catch (Exception e) {
             System.err.println("[TransactionService] Could not reach account-service: " + e.getMessage());
+            // Fallback: try single account endpoint
+            try {
+                AccountResponse single = accountClient.getAccountByEmail(email);
+                accounts = single != null ? List.of(single) : Collections.emptyList();
+            } catch (Exception ex) {
+                return Collections.emptyList();
+            }
+        }
+
+        if (accounts == null || accounts.isEmpty()) {
             return Collections.emptyList();
         }
 
-        if (account == null) {
-            return Collections.emptyList();
-        }
+        List<String> accountNumbers = accounts.stream()
+                .map(AccountResponse::getAccountNumber)
+                .filter(an -> an != null && !an.isBlank())
+                .distinct()
+                .collect(Collectors.toList());
 
-        return repository.findByAccountNumber(account.getAccountNumber());
+        System.out.println("[TransactionService] Fetching transactions for accounts: " + accountNumbers);
+        return repository.findByAccountNumberIn(accountNumbers);
     }
 }

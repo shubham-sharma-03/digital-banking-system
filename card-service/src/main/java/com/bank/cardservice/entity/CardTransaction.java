@@ -12,6 +12,8 @@ public class CardTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long cardId;
+
     private String cardNumber;
 
     private String merchant;
@@ -22,12 +24,22 @@ public class CardTransaction {
 
     private LocalDateTime transactionDate;
 
+    private LocalDateTime createdAt;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getCardId() {
+        return cardId;
+    }
+
+    public void setCardId(Long cardId) {
+        this.cardId = cardId;
     }
 
     public String getCardNumber() {
@@ -68,5 +80,13 @@ public class CardTransaction {
 
     public void setTransactionDate(LocalDateTime transactionDate) {
         this.transactionDate = transactionDate;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

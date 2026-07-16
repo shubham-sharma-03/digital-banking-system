@@ -10,6 +10,7 @@
         <module name="api-gateway" />
         <module name="transaction-service" />
         <module name="auth-service" />
+        <module name="card-service" />
         <module name="eureka-server" />
       </profile>
       <profile name="Gradle Imported" enabled="true">
@@ -36,7 +37,6 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
         <module name="loan-service" />
-        <module name="card-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

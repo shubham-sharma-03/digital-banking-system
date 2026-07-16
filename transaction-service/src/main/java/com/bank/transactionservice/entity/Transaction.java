@@ -11,22 +11,28 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number")
+    @Column(name = "account_number", nullable = false)
     private String accountNumber;
 
-    @Column(name = "amount")
+    @Column(nullable = false)
     private Double amount;
 
-    @Column(name = "transactionType")
+    @Column(name = "transaction_type", nullable = false)
     private String transactionType;
 
-    @Column(name = "description")
+    @Column(nullable = false)
+    private String status;
+
+    @Column(nullable = false)
+    private String mode;
+
+    @Column(length = 300)
     private String description;
 
     @Column(name = "balance_after")
     private Double balanceAfter;
 
-    @Column(name = "reference_id")
+    @Column(name = "reference_id", unique = true)
     private String referenceId;
 
     @Column(name = "transaction_date")
@@ -42,10 +48,20 @@ public class Transaction {
             transactionDate = LocalDateTime.now();
         }
 
-        if (referenceId == null || referenceId.isEmpty()) {
+        if (referenceId == null || referenceId.isBlank()) {
             referenceId = "TXN" + System.currentTimeMillis();
         }
+
+        if (status == null || status.isBlank()) {
+            status = "SUCCESS";
+        }
+
+        if (mode == null || mode.isBlank()) {
+            mode = "BANKING";
+        }
     }
+
+    // ---------------- Getters ----------------
 
     public Long getId() {
         return id;
@@ -61,6 +77,14 @@ public class Transaction {
 
     public String getTransactionType() {
         return transactionType;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getMode() {
+        return mode;
     }
 
     public String getDescription() {
@@ -79,6 +103,8 @@ public class Transaction {
         return transactionDate;
     }
 
+    // ---------------- Setters ----------------
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -91,8 +117,16 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public void setTransactionType(String transactiontype) {
-        this.transactionType = transactiontype;
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public void setDescription(String description) {

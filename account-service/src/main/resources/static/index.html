@@ -471,23 +471,32 @@
 
             <!-- ── TRANSACTIONS ──────────────────────── -->
             <div id="vw-transactions" class="vw">
-                <div class="ph">
-                    <div class="ph-top">
-                        <div><div class="ph-title">Transaction History</div><div class="ph-sub">All accounts · Last 30 days</div></div>
-                        <div class="ph-acts">
-                            <button class="btn btn-g" onclick="exportStatement()">
-                                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-                                Export PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
                 <div class="tc">
-                    <div class="tc-head"><div class="tc-title">Transactions</div></div>
+                    <div class="tc-head">
+                        <div class="tc-title">Transactions</div>
+                    </div>
+
                     <table>
-                        <thead><tr><th>Date & Time</th><th>Description</th><th>Account</th><th>Ref. ID</th><th>Mode</th><th>Type</th><th style="text-align:right">Amount</th><th style="text-align:right">Balance After</th></tr></thead>
+                        <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Description</th>
+                            <th>Account</th>
+                            <th>Ref. ID</th>
+                            <th>Mode</th>
+                            <th>Type</th>
+                            <th style="text-align:right">Amount</th>
+                            <th style="text-align:right">Balance After</th>
+                        </tr>
+                        </thead>
+
                         <tbody id="transactions-tbody">
-                        <tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">Loading transactions...</td></tr>
+                        <tr>
+                            <td colspan="8"
+                                style="text-align:center;color:var(--text3);padding:20px">
+                                Loading transactions...
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>

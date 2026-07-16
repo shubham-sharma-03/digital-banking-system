@@ -3,15 +3,21 @@ package com.bank.accountservice.dto;
 import java.time.LocalDateTime;
 
 public class TransactionRequest {
+
     private String accountNumber;
     private Double amount;
     private String transactionType;
     private String description;
     private Double balanceAfter;
+
+    private String status;
+    private String mode;
+    private String referenceId;
+
     private LocalDateTime transactionDate;
 
-    // getters and setters
-
+    public TransactionRequest() {
+    }
 
     public String getAccountNumber() {
         return accountNumber;
@@ -53,6 +59,30 @@ public class TransactionRequest {
         this.balanceAfter = balanceAfter;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
+    }
+
     public LocalDateTime getTransactionDate() {
         return transactionDate;
     }
@@ -60,6 +90,4 @@ public class TransactionRequest {
     public void setTransactionDate(LocalDateTime transactionDate) {
         this.transactionDate = transactionDate;
     }
-
-
 }

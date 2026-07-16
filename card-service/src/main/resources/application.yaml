@@ -4,30 +4,32 @@ server:
 spring:
   application:
     name: card-service
-
+  main:
+    allow-bean-definition-overriding: true
   datasource:
     url: jdbc:postgresql://postgres:5432/card_db
     username: postgres
     password: password
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: sharmashubham05275@gmail.com
-    password: eyoy gdhr ripw ghlk
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://eureka-server:8761/eureka/
+
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway,health
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE

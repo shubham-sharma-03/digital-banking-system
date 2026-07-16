@@ -35,6 +35,11 @@ public class AccountController {
         return ResponseEntity.ok(accountService.getAccountByEmail(email));
     }
 
+    @GetMapping("/user/{email}")
+    public ResponseEntity<List<Account>> getAccountsByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(accountService.getAccountsByEmail(email));
+    }
+
     // ── GET STATEMENT ──
     @GetMapping("/{accountNumber}/statement")
     public ResponseEntity<List<TransactionRequest>> getStatement(@PathVariable String accountNumber) {

@@ -2,6 +2,7 @@ package com.bank.cardservice.controller;
 
 import com.bank.cardservice.dto.CardRequest;
 import com.bank.cardservice.dto.CardResponse;
+import com.bank.cardservice.dto.CardTransactionRequest;
 import com.bank.cardservice.entity.Card;
 import com.bank.cardservice.entity.CardTransaction;
 import com.bank.cardservice.service.CardService;
@@ -10,13 +11,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/cards")
-@CrossOrigin(origins = "*")
+@CrossOrigin(
+        origins = {"http://localhost:8081", "http://localhost:9090", "http://localhost:3000"},
+        allowedHeaders = "*",
+        allowCredentials = "false"
+)
 public class CardController {
 
     @Autowired
@@ -80,13 +86,48 @@ public class CardController {
     }
 
     @PostMapping("/apply")
-    public ResponseEntity<?> applyCard(@RequestBody CardRequest request) {
-        try {
-            return ResponseEntity.ok(service.applyCard(request));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Collections.singletonMap("error", e.getMessage()));
+    public ResponseEntity<?> applyCard(@RequestBody Map<String, Object> body) {
+        String accountNumber = (String) body.get("accountNumber");
+
+        System.out.println("========== AUTO APPLY CARD ==========");
+        System.out.println("Account: " + accountNumber);
+        System.out.println("Full body: " + body);
+
+        if (accountNumber == null || accountNumber.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "accountNumber is required"));
         }
+
+        try {
+            // Auto-generate card details
+            CardRequest request = new CardRequest();
+            request.setAccountNumber(accountNumber);
+            request.setCardHolderName(body.containsKey("cardHolderName") ? (String) body.get("cardHolderName") : "Shubham Sharma");
+            request.setCardType(body.containsKey("cardType") ? (String) body.get("cardType") : "VISA");
+            request.setCardNumber(body.containsKey("cardNumber") ? (String) body.get("cardNumber") : generateCardNumber());
+            request.setEmail(body.containsKey("email") ? (String) body.get("email") : "shubham@gmail.com");
+
+            Card card = service.applyCard(request);
+
+            System.out.println("CARD AUTO-GENERATED SUCCESSFULLY");
+            return ResponseEntity.ok(Map.of(
+                    "message", "Card applied successfully",
+                    "cardId", card.getId(),
+                    "cardNumber", card.getCardNumber()
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Helper to generate card number
+    private String generateCardNumber() {
+        Random rnd = new Random();
+        StringBuilder sb = new StringBuilder("4");
+        for (int i = 0; i < 15; i++) {
+            sb.append(rnd.nextInt(10));
+        }
+        return sb.toString();
     }
 
     @PostMapping("/block/{id}")
@@ -94,8 +135,7 @@ public class CardController {
         try {
             return ResponseEntity.ok(Collections.singletonMap("message", service.blockCard(id)));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Collections.singletonMap("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
@@ -109,27 +149,21 @@ public class CardController {
         }
     }
 
+    @PostMapping("/{cardId}/transactions")
+    public ResponseEntity<CardTransaction> createCardTransaction(
+            @PathVariable Long cardId,
+            @RequestBody CardTransactionRequest request) {
+        return ResponseEntity.ok(service.createTransaction(cardId, request));
+    }
+
     @GetMapping("/{cardId}/transactions")
-    public ResponseEntity<?> getTransactions(
-            @PathVariable Long cardId) {
-
+    public ResponseEntity<?> getTransactions(@PathVariable Long cardId) {
         Card card = service.getCardById(cardId);
+        System.out.println("CARD NUMBER = " + card.getCardNumber());
 
-        System.out.println(
-                "CARD NUMBER = "
-                        + card.getCardNumber()
-        );
-
-        List<CardTransaction> transactions =
-                service.getCardTransactions(
-                        card.getCardNumber());
-
-        System.out.println(
-                "TXN COUNT = "
-                        + transactions.size()
-        );
+        List<CardTransaction> transactions = service.getCardTransactions(card.getCardNumber());
+        System.out.println("TXN COUNT = " + transactions.size());
 
         return ResponseEntity.ok(transactions);
     }
-
 }

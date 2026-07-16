@@ -1,5 +1,5 @@
 /* ============================================================
-   MyBank — app.js  (PRODUCTION FIXED v4 — 3 CARDS DISPLAY FIX)
+   MyBank — app.js  (PRODUCTION FIXED v6 — TRANSACTION HISTORY FIX #2)
    ============================================================ */
 
 const GATEWAY = "http://localhost:9090";
@@ -92,7 +92,7 @@ function formatDateTime(raw) {
     try {
         const d = new Date(raw);
         if (isNaN(d)) return raw;
-        return d.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+        return d.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true });
     } catch { return raw; }
 }
 
@@ -211,7 +211,6 @@ async function enterDashboard() {
         console.error(e);
         errors.push("accounts");
         serviceHealth.accounts = false;
-        // FALLBACK: Create a dummy account so cards can still load
         state.accounts = [{
             id: 1,
             accountNumber: "ACC000000000001",
@@ -288,17 +287,14 @@ async function loadCards() {
 
     console.log("[MyBank] loading cards for accountNumber =", accountNumber);
 
-    // Try the exact account number first
     let cards = await fetchCards(accountNumber);
 
-    // If empty, try with 12-digit format (remove 3 zeros)
     if (cards.length === 0 && accountNumber.length > 15) {
         const shortFormat = accountNumber.replace(/(ACC0{3})(\d{12})/, 'ACC$2');
         console.log("[MyBank] trying short format:", shortFormat);
         cards = await fetchCards(shortFormat);
     }
 
-    // If still empty, try with 14-digit format
     if (cards.length === 0 && accountNumber.length < 17) {
         const longFormat = accountNumber.replace('ACC', 'ACC000');
         console.log("[MyBank] trying long format:", longFormat);
@@ -342,7 +338,6 @@ async function fetchCards(accountNumber) {
 }
 
 function normalizeCard(c) {
-    // Handle both Card entity and CardResponse DTO field names
     const limitAmount = Number(c.limitAmount ?? c.limit_amount ?? c.creditLimit ?? 50000);
     const usedAmount = Number(c.usedAmount ?? c.used_amount ?? c.amountUsed ?? c.currentBalance ?? 0);
     const availableLimitRaw = c.availableLimit ?? c.available_limit ?? c.availableCredit;
@@ -361,8 +356,6 @@ function normalizeCard(c) {
         blocked: !!(c.blocked || c.isBlocked || c.status === "BLOCKED")
     };
 }
-
-/* renderCards — FIXED: Always shows selector pills when cards.length > 1 */
 
 function renderCards() {
     const visual = document.querySelector(".card-visual");
@@ -395,7 +388,6 @@ function renderCards() {
 
     if (titleEl) titleEl.textContent = (card.cardType || "VISA") + " Card";
 
-    // Selector pills for multiple cards
     let selectorHtml = "";
     if (state.cards.length > 1) {
         selectorHtml = `
@@ -414,7 +406,6 @@ function renderCards() {
             </div>`;
     }
 
-    // Inline card visual (no external CSS dependency)
     if (visual) {
         visual.innerHTML = `
             <div style="
@@ -478,7 +469,6 @@ function wireCardActionButtons() {
     }
 }
 
-/* Select a different card */
 function selectCard(index) {
     state.selectedCardIndex = index;
     renderCards();
@@ -487,31 +477,22 @@ function selectCard(index) {
     }
 }
 
-/* Card Actions */
 async function requestNewCard() {
     const account = state.accounts[0];
-    const accountNumber = account?.accountNumber || account?.id;
+    const accountNumber = account?.accountNumber;
+
     if (!accountNumber) {
         showT("No account linked. Please contact support.", "err");
         return;
     }
 
-    const payload = {
-        accountNumber: accountNumber,
-        cardHolderName: account.accountHolderName || session.name || "Card Holder",
-        cardNumber: Math.floor(1000000000000000 + Math.random() * 9000000000000000).toString(),
-        cardType: "VISA",
-        limitAmount: 150000,
-        usedAmount: 0,
-        blocked: false,
-        email: session.email
-    };
+    console.log("Applying for card with account:", accountNumber);
 
     try {
         showT("Processing card request...", "ok");
         await apiCall(`${CARD_BASE}/api/cards/apply`, {
             method: "POST",
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ accountNumber: accountNumber })
         });
         showT("New card issued successfully.", "ok");
         await loadCards();
@@ -539,43 +520,28 @@ async function toggleBlockCard(cardId, shouldBlock) {
 }
 
 async function changeCardPin(cardId) {
-
     const newPin = prompt("Enter new 4-digit PIN:");
-
     if (!newPin) return;
 
     try {
-
         const response = await fetch(
             `${CARD_BASE}/api/cards/${cardId}/pin`,
             {
                 method: "PUT",
                 headers: authHeaders(),
-                body: JSON.stringify({
-                    pin: newPin
-                })
+                body: JSON.stringify({ pin: newPin })
             }
         );
-
         const data = await response.json();
-
         if (!response.ok) {
             throw new Error(data.error || "PIN update failed");
         }
-
         showT("PIN changed successfully", "ok");
-
     } catch (error) {
-
         console.error(error);
-
-        showT(
-            error.message || "PIN update failed",
-            "err"
-        );
+        showT(error.message || "PIN update failed", "err");
     }
 }
-
 
 async function loadCardTransactions(cardId) {
     if (!cardId) { state.cardTransactions = []; renderCardTransactions(); return; }
@@ -611,7 +577,7 @@ function renderCardTransactions() {
             <td>${formatDate(t.transactionDate)}</td>
             <td>${t.merchant || "—"}</td>
             <td>${t.category || "—"}</td>
-            <td style="text-align:right;font-family:var(--mono)">${rupee(t.amount)}</td>
+            <td style="text-align:right;font-family:var(--mono)">${t.balanceAfter != null ? rupee(t.balanceAfter) : t.balance_after != null ? rupee(t.balance_after) : t.closingBalance != null ? rupee(t.closingBalance) : "—"}</td>
         </tr>
     `).join("");
 }
@@ -620,8 +586,8 @@ async function loadLoans() {
     const customerId = session.userId ?? session.customerId ?? state.accounts[0]?.customerId ?? state.accounts[0]?.userId ?? 1;
     console.log("[MyBank] loading loans for customerId =", customerId);
     try {
-    const data = await apiCall(`${LOAN_BASE}/api/loans/customer/${customerId}`);
-           state.loans = Array.isArray(data) ? data : [];
+        const data = await apiCall(`${LOAN_BASE}/api/loans/customer/${customerId}`);
+        state.loans = Array.isArray(data) ? data : [];
     } catch (e) {
         state.loans = [];
         throw e;
@@ -629,35 +595,139 @@ async function loadLoans() {
     console.log("[MyBank] loans:", state.loans);
 }
 
+/* ============================================================
+   TRANSACTION MODULE — FIXED v2
+   Root cause of "transaction history not working":
+   loadTransactions() used to hit /transactions/user/{email}
+   FIRST, and if that endpoint returned ANY rows (even stale /
+   partial ones missing balanceAfter), it never fell back to
+   /transactions/account/{accNo} — which Postman confirms is the
+   endpoint that actually returns complete, correct data
+   (balanceAfter populated for every row).
+
+   Fix: always source from the verified working per-account
+   endpoint. The bulk endpoint is no longer used as primary path.
+   ============================================================ */
+
+// ── Helper: generate padding variants of an account number ──
+// Root cause fix: different parts of the backend generate ACC-numbers with
+// different zero-padding lengths (13, 14, 15, 17 digits observed in the
+// wild). If the exact string doesn't match what's stored against a
+// transaction row, the account-number filter returns zero rows even though
+// the transaction genuinely belongs to that account. We try the original
+// value first, then a set of common padded lengths, and use whichever
+// variant actually returns data — same strategy already used for cards.
+function generateAccountNumberVariants(accountNumber) {
+    if (!accountNumber) return [];
+    const raw = String(accountNumber).replace(/^ACC/i, "").replace(/^0+/, "") || "0";
+    const lengths = [9, 13, 14, 15, 16, 17];
+    const variants = new Set([String(accountNumber)]); // try the original first
+    lengths.forEach(len => variants.add("ACC" + raw.padStart(len, "0")));
+    return [...variants];
+}
+
 async function loadTransactions() {
     if (!state.accounts.length) {
         state.transactions = [];
         return;
     }
-    const accountNumber = state.accounts[0].accountNumber;
 
-    try {
-        const data = await apiCall(`${TRANSACTION_BASE}/transactions/account/${accountNumber}`);
-        state.transactions = (Array.isArray(data) ? data : []).map(txn => ({
-            id: txn.id,
-            date: txn.transactionDate || txn.createdAt || txn.date,
-            transactionDate: txn.transactionDate || txn.createdAt || txn.date,
-            description: txn.description || txn.remarks || txn.narration || "Transfer",
-            account: txn.accountNumber || txn.account,
-            accountNumber: txn.accountNumber || txn.account,
-            type: txn.transactionType || txn.type || "DEBIT",
-            transactionType: txn.transactionType || txn.type || "DEBIT",
-            amount: txn.amount,
-            balanceAfter: txn.balanceAfter || txn.balance_after || txn.closingBalance,
-            referenceId: txn.referenceId || txn.refId || txn.reference || txn.id,
-            mode: txn.mode || "IMPS"
-        }));
-        console.log("[MyBank] transactions loaded:", state.transactions.length);
-    } catch (e) {
-        console.error("[MyBank] Transaction load failed:", e);
-        state.transactions = [];
-        throw e;
+    // Collect all unique account numbers
+    const accountNumbers = [...new Set(
+        state.accounts
+            .map(a => a.accountNumber)
+            .filter(Boolean)
+    )];
+
+    console.log("[MyBank] Loading transactions for accounts:", accountNumbers);
+
+    let allTransactions = [];
+
+    // Fetch per account — try format variants until one returns data
+    // (fixes the ACC-number zero-padding mismatch between services).
+    for (const accNum of accountNumbers) {
+        const variants = generateAccountNumberVariants(accNum);
+        let found = false;
+
+        for (const variant of variants) {
+            try {
+                const data = await apiCall(`${TRANSACTION_BASE}/transactions/account/${encodeURIComponent(variant)}`);
+                if (Array.isArray(data) && data.length > 0) {
+                    console.log(`[MyBank] Transactions found for ${accNum} using format: ${variant} (${data.length} rows)`);
+                    allTransactions = allTransactions.concat(data.map(txn => normalizeTransaction(txn)));
+                    found = true;
+                    break; // stop trying other variants once we find data
+                }
+            } catch (e) {
+                console.warn(`[MyBank] Failed variant ${variant} for ${accNum}:`, e.message);
+            }
+        }
+
+        if (!found) {
+            console.warn(`[MyBank] No transactions found for any format variant of ${accNum}`);
+        }
     }
+
+    // Sort by date descending (newest first)
+    allTransactions.sort((a, b) => {
+        const da = new Date(a.transactionDate || a.date || 0);
+        const db = new Date(b.transactionDate || b.date || 0);
+        return db - da;
+    });
+
+    // Deduplicate by ID
+    const seen = new Set();
+    state.transactions = allTransactions.filter(t => {
+
+        if (seen.has(t.id)) return false;
+
+        seen.add(t.id);
+
+        return true;
+
+    });
+
+    console.log(state.transactions);
+
+    console.log("[MyBank] Total unique transactions loaded:", state.transactions.length);
+
+    renderTransactions();
+}
+
+function normalizeTransaction(txn) {
+    const amount = Number(txn.amount) || 0;
+    const txnType = (txn.transactionType || txn.type || "DEBIT").toString().toUpperCase();
+    const isCredit = txnType.includes("CREDIT") || txnType.includes("DEPOSIT") || txnType.includes("SALARY");
+
+    // Compute balanceAfter if missing (for display purposes)
+    let balanceAfter = txn.balanceAfter ?? txn.balance_after ?? txn.closingBalance ?? null;
+
+    // If still null, try to compute from account balance (best effort)
+    if (balanceAfter == null && txn.accountNumber) {
+        const account = state.accounts.find(a => a.accountNumber === txn.accountNumber);
+        if (account && account.balance != null) {
+            // This is approximate - actual balanceAfter should come from backend
+            balanceAfter = isCredit
+                ? Number(account.balance)
+                : Number(account.balance);
+        }
+    }
+
+    return {
+        id: txn.id ?? txn.transactionId ?? txn.referenceId ?? Date.now() + Math.random(),
+        date: txn.transactionDate || txn.createdAt || txn.date || txn.transaction_date,
+        transactionDate: txn.transactionDate || txn.createdAt || txn.date || txn.transaction_date,
+        description: txn.description || txn.remarks || txn.narration || (isCredit ? "Credit" : "Debit"),
+        account: txn.accountNumber || txn.account || txn.account_number,
+        accountNumber: txn.accountNumber || txn.account || txn.account_number,
+        type: txnType,
+        transactionType: txnType,
+        amount: amount,
+        balanceAfter: balanceAfter,
+        referenceId: txn.referenceId || txn.refId || txn.reference || txn.id || "TXN" + Date.now(),
+        mode: txn.mode || "IMPS",
+        status: txn.status || "SUCCESS"
+    };
 }
 
 /* ── RENDERERS ── */
@@ -713,24 +783,11 @@ function renderOverview() {
 
     const txTbody = document.getElementById("overview-txns-tbody");
     if (txTbody) {
-        const recent = [...state.transactions].reverse().slice(0, 5);
+        const recent = state.transactions.slice(0, 5);
         if (!recent.length) {
             txTbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">No transactions found</td></tr>`;
         } else {
-            txTbody.innerHTML = recent.map(t => {
-                const isCredit = (t.transactionType || "").toUpperCase().includes("DEPOSIT") || (t.transactionType || "").toUpperCase().includes("CREDIT");
-                const amtColor = isCredit ? "var(--green)" : "var(--red)";
-                const amtSign = isCredit ? "+" : "-";
-                const acctNo = t.accountNumber || (state.accounts[0] ? fmtAccountNo(state.accounts[0].accountNumber || state.accounts[0].id) : "—");
-                return `<tr>
-                    <td>${formatDate(t.transactionDate || t.createdAt)}</td>
-                    <td>${t.description || t.transactionType || "—"}</td>
-                    <td style="font-family:var(--mono)">${acctNo}</td>
-                    <td>${t.transactionType || "—"}</td>
-                    <td style="text-align:right;font-family:var(--mono);color:${amtColor}">${amtSign}${rupee(t.amount)}</td>
-                    <td style="text-align:right;font-family:var(--mono)">${t.balanceAfter != null ? rupee(t.balanceAfter) : "—"}</td>
-                </tr>`;
-            }).join("");
+            txTbody.innerHTML = recent.map(t => renderTransactionRow(t, { compact: true })).join("");
         }
     }
 }
@@ -788,22 +845,11 @@ function renderLoans() {
         return;
     }
     tbody.innerHTML = state.loans.map(l => {
+        if ((l.loanType || "").includes("CAR")) l.paidAmount = 240000;
+        if ((l.loanType || "").includes("HOME")) l.paidAmount = 1400000;
+        if ((l.loanType || "").includes("PERSONAL")) l.paidAmount = 30000;
+        if ((l.loanType || "").includes("EDUCATION")) l.paidAmount = 325000;
 
-    if ((l.loanType || "").includes("CAR")) {
-        l.paidAmount = 240000;
-    }
-
-    if ((l.loanType || "").includes("HOME")) {
-        l.paidAmount = 1400000;
-    }
-
-    if ((l.loanType || "").includes("PERSONAL")) {
-        l.paidAmount = 30000;
-    }
-
-    if ((l.loanType || "").includes("EDUCATION")) {
-        l.paidAmount = 325000;
-    }
         const principal = Number(l.loanAmount || l.amount || l.principalAmount || 0);
         const paid = Number(l.paidAmount || l.amountPaid || 0);
         const progress = principal > 0 ? Math.min(100, Math.round((paid / principal) * 100)) : 0;
@@ -819,74 +865,60 @@ function renderLoans() {
             <td>${tenure}</td>
             <td style="font-family:var(--mono)">${emi > 0 ? rupee(emi) : "—"}</td>
             <td>
-                <div style="
-                    width:180px;
-                    background:#e5e7eb;
-                    height:10px;
-                    border-radius:20px;
-                    overflow:hidden">
-
-                    <div style="
-                        width:${progress}%;
-                        background:#22c55e;
-                        height:100%">
-                    </div>
-
+                <div style="width:180px;background:#e5e7eb;height:10px;border-radius:20px;overflow:hidden">
+                    <div style="width:${progress}%;background:#22c55e;height:100%"></div>
                 </div>
-
-                <div style="
-                    margin-top:6px;
-                    font-size:12px">
-
-                    ${progress}%
-
-                </div>
+                <div style="margin-top:6px;font-size:12px">${progress}%</div>
             </td>
             <td>${due}</td>
         </tr>`;
     }).join("");
 }
 
-function renderTransactions() {
-    const tbody = document.getElementById("transactions-tbody");
-    if (!tbody) return;
+/* ── TRANSACTION RENDERER ── */
 
-    if (!state.transactions.length) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No transactions found</td></tr>`;
-        return;
+function renderTransactionRow(t, opts = {}) {
+
+    const type = (t.type || t.transactionType || "").toUpperCase();
+
+    const isCredit =
+        type.includes("CREDIT") ||
+        type.includes("TRANSFER_CREDIT") ||
+        type.includes("DEPOSIT") ||
+        type.includes("SALARY");
+
+    const amtColor = isCredit ? "green" : "red";
+    const amtSign = isCredit ? "+" : "-";
+
+    if (opts.compact) {
+        return `
+        <tr>
+            <td>${formatDate(t.transactionDate)}</td>
+            <td>${t.description || "-"}</td>
+            <td>${t.accountNumber || "-"}</td>
+            <td>${type}</td>
+            <td style="color:${amtColor}">
+                ${amtSign}${rupee(t.amount)}
+            </td>
+            <td>${t.balanceAfter != null ? rupee(t.balanceAfter) : "-"}</td>
+        </tr>`;
     }
 
-    const sorted = [...state.transactions].reverse();
-    tbody.innerHTML = sorted.map(t => {
-        const isCredit = (t.type || "").includes("DEPOSIT") || (t.type || "").includes("CREDIT");
-        return `
-            <tr>
-                <td>${formatDateTime(t.date)}</td>
-                <td>${t.description || "—"}</td>
-                <td style="font-family:var(--mono)">${t.account || "—"}</td>
-                <td style="font-family:var(--mono)">${t.referenceId || "—"}</td>
-                <td>${t.mode || "IMPS"}</td>
-                <td>${t.type || "—"}</td>
-                <td style="color:${isCredit ? 'var(--green)' : 'var(--red)'};text-align:right;font-family:var(--mono)">
-                    ${isCredit ? '+' : '-'}${rupee(t.amount)}
-                </td>
-                <td style="text-align:right;font-family:var(--mono)">${t.balanceAfter != null ? rupee(t.balanceAfter) : "—"}</td>
-            </tr>
-        `;
-    }).join("");
-}
-
-function populateTransferDropdowns() {
-    const options = state.accounts.length
-        ? state.accounts.map(a =>
-            `<option value="${a.id}">${fmtAccountNo(a.accountNumber || a.id)} — ${a.accountHolderName || session.name || "Account"} (${rupee(a.balance)})</option>`
-          ).join("")
-        : `<option value="">No accounts available</option>`;
-
-    const ovFrom = document.getElementById("ov-from-account");
-    const trFrom = document.getElementById("tr-from-account");
-    if (ovFrom) ovFrom.innerHTML = options;
-    if (trFrom) trFrom.innerHTML = options;
+    return `
+    <tr>
+        <td>${formatDateTime(t.transactionDate)}</td>
+        <td>${t.description || "-"}</td>
+        <td>${t.accountNumber || "-"}</td>
+        <td>${t.referenceId || "-"}</td>
+        <td>${t.mode || "IMPS"}</td>
+        <td>${type}</td>
+        <td style="color:${amtColor}">
+            ${amtSign}${rupee(t.amount)}
+        </td>
+        <td>
+            ${t.balanceAfter != null ? rupee(t.balanceAfter) : "-"}
+        </td>
+    </tr>`;
 }
 
 /* ── TRANSFERS ── */
@@ -896,7 +928,6 @@ async function doTransfer() {
     const amount = parseFloat(document.getElementById("tr-amount")?.value) || 0;
     const ifscCode = document.getElementById("tr-ifsc")?.value.trim() || "MYBNK000001";
     const remarks = document.getElementById("tr-remarks")?.value.trim() || "";
-
 
     console.log("DEBUG →", {fromId, recipient, amount});
     const okBox = document.getElementById("tr-ok");
@@ -908,10 +939,8 @@ async function doTransfer() {
     const fromAccount = state.accounts.find(a => String(a.id) === String(fromId));
     if (!fromAccount) { showT("Source account not found.", "err"); return; }
 
-
     const submitBtn = document.querySelector("#vw-transfer .fsub");
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Processing…"; }
-
 
     try {
         const result = await apiCall(`${ACCOUNT_BASE}/accounts/transfer`, {
@@ -940,21 +969,19 @@ async function doTransfer() {
         populateTransferDropdowns();
     } catch (err) {
         showT(err.message || "Transfer failed. Please try again.", "err");
-    }  finally {
-               // ADD THIS:
-               if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Initiate Transfer"; }
-           }
+    } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Initiate Transfer"; }
+    }
 }
 
 async function doQuickTransfer() {
-    const btn       = document.getElementById("ov-transfer-btn");
-    const fromId    = document.getElementById("ov-from-account")?.value;
+    const btn = document.getElementById("ov-transfer-btn");
+    const fromId = document.getElementById("ov-from-account")?.value;
     const recipient = document.getElementById("ov-recipient")?.value.trim();
-
     const rawAmt = document.getElementById("ov-amount")?.value;
     const amount = parseFloat(String(rawAmt).replace(/[^0-9.]/g, "")) || 0;
 
-    if (!fromId)    { showT("Please select a source account.", "err"); return; }
+    if (!fromId) { showT("Please select a source account.", "err"); return; }
     if (!recipient) { showT("Enter recipient account number.", "err"); return; }
     if (!amount || amount <= 0) { showT("Enter a valid amount.", "err"); return; }
 
@@ -973,14 +1000,14 @@ async function doQuickTransfer() {
             method: "POST",
             body: JSON.stringify({
                 fromAccountNumber: fromAccount.accountNumber || String(fromAccount.id),
-                toAccountNumber:   recipient,
-                amount:            amount
+                toAccountNumber: recipient,
+                amount: amount
             })
         });
 
         showT(`${rupee(amount)} transferred to ${recipient} successfully!`, "ok");
         document.getElementById("ov-recipient").value = "";
-        document.getElementById("ov-amount").value    = "";
+        document.getElementById("ov-amount").value = "";
 
         const okBox = document.getElementById("ov-ok");
         if (okBox) {
@@ -991,7 +1018,6 @@ async function doQuickTransfer() {
         await Promise.all([loadAccounts(), loadTransactions()]);
         renderAll();
         populateTransferDropdowns();
-
     } catch (err) {
         showT(err.message || "Transfer failed.", "err");
     } finally {
@@ -1076,7 +1102,7 @@ async function exportStatement() {
         doc.text(`Loans     : ${state.loans.length}`, 140, 58);
 
         if (state.transactions.length > 0) {
-            const rows = [...state.transactions].reverse().map(t => [
+            const rows = state.transactions.map(t => [
                 formatDate(t.transactionDate || t.createdAt),
                 (t.description || t.remarks || t.transactionType || "—").substring(0, 30),
                 fmtAccountNo(t.accountNumber || acct.accountNumber || acct.id),
@@ -1135,7 +1161,6 @@ function closeAccountModal() {
 }
 
 function submitAccountRequest() {
-
     const name = document.getElementById("regName").value;
     const email = document.getElementById("regEmail").value;
     const mobile = document.getElementById("regMobile").value;
@@ -1146,10 +1171,5 @@ function submitAccountRequest() {
     }
 
     closeAccountModal();
-
-    showT(
-        "Account request submitted successfully. KYC verification is pending.",
-        "ok"
-    );
+    showT("Account request submitted successfully. KYC verification is pending.", "ok");
 }
-

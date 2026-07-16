@@ -1,0 +1,8 @@
+2026-07-13T08:29:36.689Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+Hibernate: select a1_0.account_number,a1_0.account_holder_name,a1_0.account_type,a1_0.balance,a1_0.branch,a1_0.email,a1_0.ifsc_code from accounts a1_0
+2026-07-13T08:34:36.671Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-07-13T08:39:56.292Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-07-13T08:44:56.275Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-07-13T08:49:56.257Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-07-13T08:54:56.238Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-07-13T08:59:56.219Z  INFO 1 --- [account-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration

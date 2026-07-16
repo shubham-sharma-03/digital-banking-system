@@ -41,10 +41,15 @@ public class AccountService {
                 .orElseThrow(() -> new RuntimeException("Account Not Found: " + accountNumber));
     }
 
-    // ── GET by Email ──
+    // ── GET by Email (single account) ──
     public Account getAccountByEmail(String email) {
         return repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Account Not Found for email: " + email));
+    }
+
+    // ── GET ALL ACCOUNTS BY EMAIL (NEW — for transaction-service multi-account) ──
+    public List<Account> getAccountsByEmail(String email) {
+        return repository.findAllByEmail(email);
     }
 
     // ── UPDATE by Account Number ──
@@ -132,8 +137,19 @@ public class AccountService {
             throw new RuntimeException("Cannot transfer to the same account");
         }
 
+        System.out.println("======================================");
+        System.out.println("FROM = [" + fromAccountNumber + "]");
+        System.out.println("TO   = [" + toAccountNumber + "]");
+        System.out.println("======================================");
+
+        System.out.println("Accounts available in database:");
+        repository.findAll().forEach(a ->
+                System.out.println("-> " + a.getAccountNumber())
+        );
+
         Account from = repository.findByAccountNumber(fromAccountNumber)
                 .orElseThrow(() -> new RuntimeException("Sender Account Not Found: " + fromAccountNumber));
+
         Account to = repository.findByAccountNumber(toAccountNumber)
                 .orElseThrow(() -> new RuntimeException("Receiver Account Not Found: " + toAccountNumber));
 
@@ -147,6 +163,7 @@ public class AccountService {
         repository.save(from);
         repository.save(to);
 
+        // Save transactions with post-transfer balances
         saveTransaction(fromAccountNumber, amount, "TRANSFER_DEBIT",
                 "Transfer to " + toAccountNumber, from.getBalance());
         saveTransaction(toAccountNumber, amount, "TRANSFER_CREDIT",
@@ -212,14 +229,15 @@ public class AccountService {
             card.setExpiryDate("12/30");
             card.setLimitAmount(100000.0);
             card.setEmail(saved.getEmail());
-            card.setAccountNumber(saved.getAccountNumber());  // 🔥 FIX: Link card to account
-            card.setBlocked(false);  // 🔥 FIX: Explicitly set false
+            card.setAccountNumber(saved.getAccountNumber());
+            card.setBlocked(false);
 
             cardClient.createCard(card);
 
         } catch (Exception e) {
             System.out.println("Card Service Down: " + e.getMessage());
         }
+
         // email
         sendEmail(
                 saved.getEmail(),
@@ -232,9 +250,8 @@ public class AccountService {
         return saved;
     }
 
-    // ── Helper: Generate unique account number (DB-safe across restarts) ──
+    // ── Helper: Generate unique account number ──
     private String generateUniqueAccountNumber() {
-
         List<Account> allAccounts = repository.findAll();
 
         long max = allAccounts.stream()
@@ -251,7 +268,6 @@ public class AccountService {
                 .orElse(0L);
 
         long next = max + 1;
-
         return String.format("ACC%014d", next);
     }
 
@@ -274,14 +290,14 @@ public class AccountService {
             Double balanceAfter) {
 
         TransactionRequest req = new TransactionRequest();
-
         req.setAccountNumber(accountNumber);
         req.setAmount(amount);
-
-        req.setTransactionType(transactionType);   // FIXED
-
+        req.setTransactionType(transactionType);
         req.setDescription(description);
         req.setBalanceAfter(balanceAfter);
+        req.setStatus("SUCCESS");
+        req.setMode("IMPS");
+        req.setReferenceId("TXN" + System.currentTimeMillis());
         req.setTransactionDate(LocalDateTime.now());
 
         try {
@@ -291,6 +307,7 @@ public class AccountService {
             System.out.println("Transaction save failed: " + e.getMessage());
         }
     }
+
     // ── Helper: Send email silently ──
     private void sendEmail(String to, String subject, String body) {
         try {

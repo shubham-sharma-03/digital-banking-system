@@ -1,24 +1,25 @@
 package com.bank.cardservice.service;
 
+import com.bank.cardservice.client.AccountClient;
+import com.bank.cardservice.client.AccountResponse;
 import com.bank.cardservice.dto.CardRequest;
 import com.bank.cardservice.dto.CardResponse;
+import com.bank.cardservice.dto.CardTransactionRequest;
 import com.bank.cardservice.entity.Card;
 import com.bank.cardservice.entity.CardTransaction;
 import com.bank.cardservice.repository.CardRepository;
 import com.bank.cardservice.repository.CardTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class CardService {
-
-    @Autowired
-    private JavaMailSender mailSender;
 
     @Autowired
     private CardRepository cardRepository;
@@ -26,6 +27,10 @@ public class CardService {
     @Autowired
     private CardTransactionRepository cardTransactionRepository;
 
+    @Autowired
+    private AccountClient accountClient;
+
+    // ── CREATE CARD (called by account-service) ──
     public Card createCard(Card card) {
         String accountNumber = card.getAccountNumber();
         if (cardRepository.findByAccountNumber(accountNumber).size() >= 3) {
@@ -34,28 +39,22 @@ public class CardService {
         return cardRepository.save(card);
     }
 
+    // ── SAVE / UPDATE CARD ──
     public Card save(Card card) {
-
         if (card.getExpiryDate() == null) {
-
-            long expiry =
-                    System.currentTimeMillis()
-                            + (5L * 365 * 24 * 60 * 60 * 1000);
-
+            long expiry = System.currentTimeMillis() + (5L * 365 * 24 * 60 * 60 * 1000);
             card.setExpiryDate(expiry);
         }
-
         if (card.getUsedAmount() == null) {
             card.setUsedAmount(0.0);
         }
-
         if (card.getBlocked() == null) {
             card.setBlocked(false);
         }
-
         return cardRepository.save(card);
     }
 
+    // ── GET ALL CARDS ──
     public List<Card> getAllCards() {
         List<Card> cards = cardRepository.findAll();
         System.out.println("=== ALL CARDS IN DB: " + cards.size() + " ===");
@@ -65,6 +64,7 @@ public class CardService {
         return cards;
     }
 
+    // ── GET CARDS BY ACCOUNT NUMBER ──
     public List<CardResponse> getCardsByAccountNumber(String accountNumber) {
         System.out.println("=== QUERYING FOR ACCOUNT: '" + accountNumber + "' ===");
         List<Card> cards = cardRepository.findByAccountNumber(accountNumber);
@@ -97,7 +97,7 @@ public class CardService {
         return responses;
     }
 
-    // ONLY ONE toResponseWithUsage method - public, with null check
+    // ── CONVERT CARD TO RESPONSE WITH USAGE ──
     public CardResponse toResponseWithUsage(Card card) {
         double used = 0.0;
         try {
@@ -130,11 +130,13 @@ public class CardService {
         return resp;
     }
 
+    // ── GET CARD BY ID ──
     public Card getCardById(Long id) {
         return cardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card Not Found"));
     }
 
+    // ── UPDATE CARD ──
     public Card updateCard(Long id, Card card) {
         Card existing = cardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card Not Found"));
@@ -151,10 +153,12 @@ public class CardService {
         return cardRepository.save(existing);
     }
 
+    // ── DELETE CARD ──
     public void deleteCard(Long id) {
         cardRepository.deleteById(id);
     }
 
+    // ── BLOCK CARD ──
     public String blockCard(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card Not Found"));
@@ -163,6 +167,7 @@ public class CardService {
         return "Card Blocked Successfully";
     }
 
+    // ── UNBLOCK CARD ──
     public String unblockCard(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Card Not Found"));
@@ -171,44 +176,69 @@ public class CardService {
         return "Card Unblocked Successfully";
     }
 
-    public void sendMail(String to, String subject, String body) {
-        SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setTo(to);
-        mail.setSubject(subject);
-        mail.setText(body);
-        mailSender.send(mail);
-    }
-
+    // ── APPLY FOR NEW CARD (VALIDATES ACCOUNT FIRST) ──
     public Card applyCard(CardRequest request) {
+        String accountNumber = request.getAccountNumber();
+        System.out.println("Inside applyCard() for account: " + accountNumber);
 
-        if (cardRepository.findByAccountNumber(
-                request.getAccountNumber()).size() >= 4) {
-            throw new RuntimeException("Maximum 4 cards allowed");
+        // Validate account exists via account-service
+        AccountResponse account;
+        try {
+            account = accountClient.getAccountByNumber(accountNumber);
+            System.out.println("Account validated: " + account.getAccountNumber());
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new RuntimeException("Account not found: " + accountNumber);
+        } catch (Exception e) {
+            throw new RuntimeException("Account service unavailable: " + e.getMessage());
+        }
+
+        // Check max cards per account
+        if (cardRepository.findByAccountNumber(accountNumber).size() >= 3) {
+            throw new RuntimeException("Maximum 3 cards allowed for this account");
         }
 
         Card card = new Card();
+        card.setAccountNumber(accountNumber);
 
-        card.setAccountNumber(request.getAccountNumber());
-        card.setCardHolderName(request.getCardHolderName());
-        card.setCardType(request.getCardType());
-        card.setCardNumber(request.getCardNumber());
+        // Use provided or auto-generate from account data
+        card.setCardHolderName(
+                request.getCardHolderName() != null ? request.getCardHolderName() : account.getAccountHolderName()
+        );
+        card.setCardType(
+                request.getCardType() != null ? request.getCardType() : "VISA"
+        );
+        card.setCardNumber(
+                request.getCardNumber() != null ? request.getCardNumber() : generateCardNumber()
+        );
+        card.setEmail(
+                request.getEmail() != null ? request.getEmail() : account.getEmail()
+        );
 
         card.setLimitAmount(150000.0);
         card.setUsedAmount(0.0);
 
-        // EXPIRY DATE = TODAY + 5 YEARS
-        long expiry =
-                System.currentTimeMillis()
-                        + (5L * 365 * 24 * 60 * 60 * 1000);
-
+        long expiry = System.currentTimeMillis() + (5L * 365 * 24 * 60 * 60 * 1000);
         card.setExpiryDate(expiry);
-
         card.setBlocked(false);
-        card.setEmail(request.getEmail());
 
-        return cardRepository.save(card);
+        System.out.println("Saving auto-generated card...");
+        Card saved = cardRepository.save(card);
+        System.out.println("Saved ID = " + saved.getId());
+
+        return saved;
     }
 
+    // Helper method to generate 16-digit Visa card number
+    private String generateCardNumber() {
+        Random rnd = new Random();
+        StringBuilder sb = new StringBuilder("4");
+        for (int i = 0; i < 15; i++) {
+            sb.append(rnd.nextInt(10));
+        }
+        return sb.toString();
+    }
+
+    // ── GET CARD TRANSACTIONS ──
     public List<CardTransaction> getCardTransactions(String cardNumber) {
         try {
             return cardTransactionRepository.findByCardNumber(cardNumber);
@@ -217,16 +247,30 @@ public class CardService {
             return new ArrayList<>();
         }
     }
-    public String changePin(Long cardId, String newPin) {
 
+    // ── CHANGE PIN ──
+    public String changePin(Long cardId, String newPin) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new RuntimeException("Card not found"));
-
         card.setPin(newPin);
-
         cardRepository.save(card);
-
         return "PIN changed successfully";
     }
 
+    // ── CREATE CARD TRANSACTION ──
+    public CardTransaction createTransaction(Long cardId, CardTransactionRequest request) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new RuntimeException("Card not found"));
+
+        CardTransaction transaction = new CardTransaction();
+        transaction.setCardId(cardId);
+        transaction.setCardNumber(card.getCardNumber());
+        transaction.setMerchant(request.getMerchant());
+        transaction.setCategory(request.getCategory());
+        transaction.setAmount(request.getAmount().doubleValue());
+        transaction.setTransactionDate(request.getTransactionDate().atStartOfDay());
+        transaction.setCreatedAt(LocalDateTime.now());
+
+        return cardTransactionRepository.save(transaction);
+    }
 }
