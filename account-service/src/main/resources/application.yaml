@@ -6,34 +6,22 @@ spring:
     name: account-service
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/account_db
-    username: postgres
-    password: password
+    url: jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+    username: neondb_owner
+    password: npg_XpJGQHE46AIt
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
-  web:
-    resources:
-      static-locations: classpath:/static/
-      add-mappings: true
-
-  mvc:
-    static-path-pattern: /**
-
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
 
   instance:
     hostname: account-service
     prefer-ip-address: false
-
-    services:
-      card-service: http://card-service:8083
-      transaction-service: http://transaction-service:8084
