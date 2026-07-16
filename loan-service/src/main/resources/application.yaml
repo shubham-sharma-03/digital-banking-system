@@ -6,9 +6,9 @@ spring:
     name: loan-service
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/loan_db
-    username: postgres
-    password: password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
   jpa:
     hibernate:
@@ -17,5 +17,11 @@ spring:
 
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+
+  instance:
+    hostname: loan-service
+    prefer-ip-address: false
