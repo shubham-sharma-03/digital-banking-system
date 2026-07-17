@@ -1,5 +1,5 @@
 /* ============================================================
-   MyBank — app.js  (PRODUCTION FIXED v8 — AUTH DIRECT FIX)
+   MyBank — app.js  (PRODUCTION FIXED v9 — CLEAN)
    ============================================================ */
 
 // ✅ Auth service direct (bypass gateway for login)
@@ -132,49 +132,13 @@ function fmtAmt(input) {
 }
 
 /* ── LOGIN ── */
-
-// Direct call to auth service (no Eureka/API Gateway needed for resume demo)
-const AUTH_URL = 'https://auth-service-YOURNAME.onrender.com'; // your auth service URL
-// OR if using API Gateway:
-const AUTH_URL = 'https://api-gateway-mku9.onrender.com';
-
-// EMERGENCY MOCK - Bypass backend entirely
 function doLogin() {
     const email = document.getElementById('em').value;
     const password = document.getElementById('pw').value;
 
-    // Mock validation
-    if (email === 'shubham@gmail.com' && password === '123456') {
-        localStorage.setItem('token', 'mock-jwt-token-12345');
-        localStorage.setItem('user', JSON.stringify({
-            name: 'Shubham Sharma',
-            email: 'shubham@gmail.com',
-            role: 'USER'
-        }));
-        showDash();
-    } else {
-        document.getElementById('l-err').style.display = 'block';
-        document.getElementById('l-err').textContent = 'Invalid email or password';
-    }
-}
-
-// Mock data for dashboard
-function loadDashboardData() {
-    // Mock accounts
-    document.getElementById('hero-num').innerHTML = '<span>₹</span>2,45,000';
-    document.getElementById('metric-accounts').textContent = '2';
-
-    // Mock transactions
-    const mockTxns = [
-        { date: '2026-07-15', desc: 'Salary Credit', account: 'ACC1234567890', type: 'CREDIT', amount: 50000, balance: 245000 },
-        { date: '2026-07-14', desc: 'Amazon Purchase', account: 'ACC1234567890', type: 'DEBIT', amount: 2500, balance: 195000 }
-    ];
-    // Render mockTxns to table...
-}
-
     console.log('Logging in:', email);
 
-    fetch(`${AUTH_URL}/api/auth/login`, {
+    fetch(`${AUTH_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -185,7 +149,18 @@ function loadDashboardData() {
     })
     .then(data => {
         console.log('Login success:', data);
+        session.token = data.token;
+        session.userId = data.userId;
+        session.email = data.email;
+        session.name = data.name || email.split('@')[0];
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify({
+            token: data.token,
+            userId: data.userId,
+            email: data.email,
+            name: data.name || email.split('@')[0],
+            role: data.role
+        }));
         showDash();
     })
     .catch(err => {
@@ -198,8 +173,19 @@ function loadDashboardData() {
 function doOut() {
     session = { token: null, userId: null, email: null, role: null, name: null };
     state = { accounts: [], cards: [], loans: [], transactions: [], cardTransactions: [], selectedCardIndex: 0 };
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     document.getElementById("pg-dash")?.classList.remove("on");
     document.getElementById("pg-login")?.classList.add("on");
+}
+
+function showDash() {
+    const saved = localStorage.getItem('user');
+    if (saved) {
+        const u = JSON.parse(saved);
+        session = { ...session, ...u };
+    }
+    enterDashboard();
 }
 
 function registerUser() {
@@ -895,6 +881,16 @@ function renderTransactionRow(t, opts = {}) {
     </tr>`;
 }
 
+function renderTransactions() {
+    const tbody = document.getElementById("transactions-tbody");
+    if (!tbody) return;
+    if (!state.transactions.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">No transactions found</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = state.transactions.map(t => renderTransactionRow(t)).join("");
+}
+
 /* ── TRANSFERS ── */
 async function doTransfer() {
     const fromId = document.getElementById("tr-from-account")?.value;
@@ -997,6 +993,18 @@ async function doQuickTransfer() {
     } finally {
         if (btn) { btn.disabled = false; btn.textContent = "Initiate Transfer"; }
     }
+}
+
+function populateTransferDropdowns() {
+    const fromSelect = document.getElementById("tr-from-account");
+    const ovFromSelect = document.getElementById("ov-from-account");
+
+    const options = state.accounts.map(a =>
+        `<option value="${a.id}">${a.accountType || 'Account'} - ${fmtAccountNo(a.accountNumber)} (₹${Number(a.balance).toLocaleString('en-IN')})</option>`
+    ).join('');
+
+    if (fromSelect) fromSelect.innerHTML = options || '<option>No accounts</option>';
+    if (ovFromSelect) ovFromSelect.innerHTML = options || '<option>No accounts</option>';
 }
 
 /* ── LOANS ── */
@@ -1124,6 +1132,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     const mo = document.getElementById("mo");
     if (mo) mo.addEventListener("click", e => { if (e.target === mo) closeMo(); });
+
+    // Check if already logged in
+    const savedToken = localStorage.getItem('token');
+    if (savedToken) {
+        showDash();
+    }
 });
 
 function openAccountRequest() {
