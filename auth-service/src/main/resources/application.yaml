@@ -6,13 +6,13 @@ spring:
     name: auth-service
 
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${DATABASE_URL:jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require}
+    username: ${DB_USER:neondb_owner}
+    password: ${DB_PASSWORD:npg_XpJGQHE46AIt}
+
     hikari:
       connection-timeout: 20000
-      maximum-pool-size: 2
-      minimum-idle: 1
+      maximum-pool-size: 5
 
   jpa:
     hibernate:
@@ -24,11 +24,25 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info
   endpoint:
     health:
-      show-details: never
+      show-details: always
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka/}
+
+  instance:
+    hostname: ${RENDER_EXTERNAL_HOSTNAME:localhost}
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
 jwt:
-  secret: ${JWT_SECRET:mybank-super-secret-key-for-jwt-signing-2026}
+  secret: ${JWT_SECRET:mysecretkeymysecretkeymysecretkey12345}
   expiration: 86400000
