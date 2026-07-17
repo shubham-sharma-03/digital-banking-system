@@ -1,14 +1,14 @@
 server:
-  port: 8085
+  port: ${PORT:8085}
 
 spring:
   application:
     name: auth-service
 
   datasource:
-    url: jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
-    username: neondb_owner
-    password: npg_XpJGQHE46AIt
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/auth_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     hikari:
       connection-timeout: 20000
       maximum-pool-size: 5
@@ -28,21 +28,28 @@ management:
     health:
       show-details: never
 
+# FIX: Disable Eureka for now - it's causing startup crashes
+# If you need service discovery later, re-enable after all services are stable
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
-    registry-fetch-interval-seconds: 10
-    initial-instance-info-replication-interval-seconds: 10
-    instance-info-replication-interval-seconds: 10
+    enabled: false
+    register-with-eureka: false
+    fetch-registry: false
+  # If you want to keep Eureka config for later:
+  # service-url:
+  #   defaultZone: https://eureka-server-lazp.onrender.com/eureka/
 
-  instance:
-    hostname: ${RENDER_EXTERNAL_HOSTNAME}
-    prefer-ip-address: false
-    instance-id: ${spring.application.name}:${random.value}
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
-    health-check-url-path: /actuator/health
-    status-page-url-path: /actuator/info
+# FIX: Disable Feign fallback if email service is down
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+  circuitbreaker:
+    enabled: true
+
+# JWT config
+jwt:
+  secret: ${JWT_SECRET:mybank-super-secret-key-for-jwt-signing-2026}
+  expiration: 86400000

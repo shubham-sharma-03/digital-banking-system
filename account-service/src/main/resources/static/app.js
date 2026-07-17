@@ -1,8 +1,11 @@
 /* ============================================================
-   MyBank — app.js  (PRODUCTION FIXED v6 — TRANSACTION HISTORY FIX #2)
+   MyBank — app.js  (PRODUCTION FIXED v8 — AUTH DIRECT FIX)
    ============================================================ */
 
+// ✅ Auth service direct (bypass gateway for login)
 const AUTH_BASE = "https://auth-service-mzwa.onrender.com";
+
+// ✅ Gateway for other services
 const GATEWAY = "https://api-gateway-mku9.onrender.com";
 const ACCOUNT_BASE = GATEWAY;
 const CARD_BASE = GATEWAY;
@@ -176,7 +179,6 @@ function registerUser() {
 }
 
 /* ── DASHBOARD BOOTSTRAP ── */
-
 async function enterDashboard() {
     document.getElementById("pg-login")?.classList.remove("on");
     document.getElementById("pg-dash")?.classList.add("on");
@@ -265,10 +267,7 @@ async function loadAccounts() {
     console.log("[MyBank] accounts:", state.accounts.length, "for", session.email);
 }
 
-/* ============================================================
-   CARD MODULE — MULTI-CARD SUPPORT + TRANSACTIONS
-   ============================================================ */
-
+/* ── CARD MODULE ── */
 async function loadCards() {
     const account = state.accounts[0];
     if (!account) {
@@ -594,33 +593,12 @@ async function loadLoans() {
     console.log("[MyBank] loans:", state.loans);
 }
 
-/* ============================================================
-   TRANSACTION MODULE — FIXED v2
-   Root cause of "transaction history not working":
-   loadTransactions() used to hit /transactions/user/{email}
-   FIRST, and if that endpoint returned ANY rows (even stale /
-   partial ones missing balanceAfter), it never fell back to
-   /transactions/account/{accNo} — which Postman confirms is the
-   endpoint that actually returns complete, correct data
-   (balanceAfter populated for every row).
-
-   Fix: always source from the verified working per-account
-   endpoint. The bulk endpoint is no longer used as primary path.
-   ============================================================ */
-
-// ── Helper: generate padding variants of an account number ──
-// Root cause fix: different parts of the backend generate ACC-numbers with
-// different zero-padding lengths (13, 14, 15, 17 digits observed in the
-// wild). If the exact string doesn't match what's stored against a
-// transaction row, the account-number filter returns zero rows even though
-// the transaction genuinely belongs to that account. We try the original
-// value first, then a set of common padded lengths, and use whichever
-// variant actually returns data — same strategy already used for cards.
+/* ── TRANSACTION MODULE ── */
 function generateAccountNumberVariants(accountNumber) {
     if (!accountNumber) return [];
     const raw = String(accountNumber).replace(/^ACC/i, "").replace(/^0+/, "") || "0";
     const lengths = [9, 13, 14, 15, 16, 17];
-    const variants = new Set([String(accountNumber)]); // try the original first
+    const variants = new Set([String(accountNumber)]);
     lengths.forEach(len => variants.add("ACC" + raw.padStart(len, "0")));
     return [...variants];
 }
@@ -631,7 +609,6 @@ async function loadTransactions() {
         return;
     }
 
-    // Collect all unique account numbers
     const accountNumbers = [...new Set(
         state.accounts
             .map(a => a.accountNumber)
@@ -642,8 +619,6 @@ async function loadTransactions() {
 
     let allTransactions = [];
 
-    // Fetch per account — try format variants until one returns data
-    // (fixes the ACC-number zero-padding mismatch between services).
     for (const accNum of accountNumbers) {
         const variants = generateAccountNumberVariants(accNum);
         let found = false;
@@ -655,7 +630,7 @@ async function loadTransactions() {
                     console.log(`[MyBank] Transactions found for ${accNum} using format: ${variant} (${data.length} rows)`);
                     allTransactions = allTransactions.concat(data.map(txn => normalizeTransaction(txn)));
                     found = true;
-                    break; // stop trying other variants once we find data
+                    break;
                 }
             } catch (e) {
                 console.warn(`[MyBank] Failed variant ${variant} for ${accNum}:`, e.message);
@@ -667,26 +642,18 @@ async function loadTransactions() {
         }
     }
 
-    // Sort by date descending (newest first)
     allTransactions.sort((a, b) => {
         const da = new Date(a.transactionDate || a.date || 0);
         const db = new Date(b.transactionDate || b.date || 0);
         return db - da;
     });
 
-    // Deduplicate by ID
     const seen = new Set();
     state.transactions = allTransactions.filter(t => {
-
         if (seen.has(t.id)) return false;
-
         seen.add(t.id);
-
         return true;
-
     });
-
-    console.log(state.transactions);
 
     console.log("[MyBank] Total unique transactions loaded:", state.transactions.length);
 
@@ -698,17 +665,12 @@ function normalizeTransaction(txn) {
     const txnType = (txn.transactionType || txn.type || "DEBIT").toString().toUpperCase();
     const isCredit = txnType.includes("CREDIT") || txnType.includes("DEPOSIT") || txnType.includes("SALARY");
 
-    // Compute balanceAfter if missing (for display purposes)
     let balanceAfter = txn.balanceAfter ?? txn.balance_after ?? txn.closingBalance ?? null;
 
-    // If still null, try to compute from account balance (best effort)
     if (balanceAfter == null && txn.accountNumber) {
         const account = state.accounts.find(a => a.accountNumber === txn.accountNumber);
         if (account && account.balance != null) {
-            // This is approximate - actual balanceAfter should come from backend
-            balanceAfter = isCredit
-                ? Number(account.balance)
-                : Number(account.balance);
+            balanceAfter = Number(account.balance);
         }
     }
 
@@ -730,7 +692,6 @@ function normalizeTransaction(txn) {
 }
 
 /* ── RENDERERS ── */
-
 function renderOverview() {
     const totalBalance = state.accounts.reduce((s, a) => s + (Number(a.balance) || 0), 0);
     const totalLoan = state.loans.reduce((s, l) => s + (Number(l.loanAmount ?? l.amount) || 0), 0);
@@ -875,17 +836,9 @@ function renderLoans() {
 }
 
 /* ── TRANSACTION RENDERER ── */
-
 function renderTransactionRow(t, opts = {}) {
-
     const type = (t.type || t.transactionType || "").toUpperCase();
-
-    const isCredit =
-        type.includes("CREDIT") ||
-        type.includes("TRANSFER_CREDIT") ||
-        type.includes("DEPOSIT") ||
-        type.includes("SALARY");
-
+    const isCredit = type.includes("CREDIT") || type.includes("TRANSFER_CREDIT") || type.includes("DEPOSIT") || type.includes("SALARY");
     const amtColor = isCredit ? "green" : "red";
     const amtSign = isCredit ? "+" : "-";
 
@@ -896,9 +849,7 @@ function renderTransactionRow(t, opts = {}) {
             <td>${t.description || "-"}</td>
             <td>${t.accountNumber || "-"}</td>
             <td>${type}</td>
-            <td style="color:${amtColor}">
-                ${amtSign}${rupee(t.amount)}
-            </td>
+            <td style="color:${amtColor}">${amtSign}${rupee(t.amount)}</td>
             <td>${t.balanceAfter != null ? rupee(t.balanceAfter) : "-"}</td>
         </tr>`;
     }
@@ -911,12 +862,8 @@ function renderTransactionRow(t, opts = {}) {
         <td>${t.referenceId || "-"}</td>
         <td>${t.mode || "IMPS"}</td>
         <td>${type}</td>
-        <td style="color:${amtColor}">
-            ${amtSign}${rupee(t.amount)}
-        </td>
-        <td>
-            ${t.balanceAfter != null ? rupee(t.balanceAfter) : "-"}
-        </td>
+        <td style="color:${amtColor}">${amtSign}${rupee(t.amount)}</td>
+        <td>${t.balanceAfter != null ? rupee(t.balanceAfter) : "-"}</td>
     </tr>`;
 }
 

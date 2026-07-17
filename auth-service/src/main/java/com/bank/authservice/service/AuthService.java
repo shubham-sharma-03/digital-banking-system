@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class AuthService {
 
@@ -29,9 +28,7 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
-
     public AuthResponse register(RegisterRequest request) {
-
         System.out.println("STEP 0");
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -45,31 +42,29 @@ public class AuthService {
         user.setRole(Role.USER);
 
         System.out.println("STEP 1");
-
         userRepository.save(user);
-
         System.out.println("STEP 2");
 
-        EmailRequest emailRequest = new EmailRequest();
+        // FIX: Don't let email failure crash registration
+        try {
+            EmailRequest emailRequest = new EmailRequest();
+            emailRequest.setTo(user.getEmail());
+            emailRequest.setSubject("Welcome To MyBank");
+            emailRequest.setBody(
+                    "Hello " + user.getName() + ", your account has been created successfully."
+            );
+            System.out.println("STEP 3");
+            emailClient.sendEmail(emailRequest);
+            System.out.println("STEP 4 - Email sent");
+        } catch (Exception e) {
+            System.out.println("STEP 4 - Email skipped: " + e.getMessage());
+            // Email service is optional - don't fail registration
+        }
 
-        emailRequest.setTo(user.getEmail());
-        emailRequest.setSubject("Welcome To MyBank");
-        emailRequest.setBody(
-                "Hello " + user.getName() +
-                        ", your account has been created successfully."
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name()
         );
-
-        System.out.println("STEP 3");
-
-        emailClient.sendEmail(emailRequest);
-
-        System.out.println("STEP 4");
-
-        String token =
-                jwtUtil.generateToken(
-                        user.getEmail(),
-                        user.getRole().name());
-
         System.out.println("STEP 5");
 
         return new AuthResponse(
@@ -81,22 +76,17 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword())) {
-
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
 
-        String token =
-                jwtUtil.generateToken(
-                        user.getEmail(),
-                        user.getRole().name());
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
 
         return new AuthResponse(
                 token,
