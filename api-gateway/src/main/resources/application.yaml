@@ -7,52 +7,64 @@ spring:
 
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
       routes:
-        - id: account-service
-          uri: lb://ACCOUNT-SERVICE
-          predicates:
-            - Path=/accounts/**
-
-        - id: loan-service
-          uri: lb://LOAN-SERVICE
-          predicates:
-            - Path=/api/loans/**
-
-        - id: card-service
-          uri: lb://CARD-SERVICE
-          predicates:
-            - Path=/api/cards/**
-
-        - id: transaction-service
-          uri: lb://TRANSACTION-SERVICE
-          predicates:
-            - Path=/transactions/**
-
         - id: auth-service
-          uri: lb://AUTH-SERVICE
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
+          filters:
+            - StripPrefix=0
 
-        - id: email-service
-          uri: lb://EMAIL-SERVICE
+        - id: account-service
+          uri: lb://account-service
           predicates:
-            - Path=/email/**
+            - Path=/accounts/**
+          filters:
+            - StripPrefix=0
+
+        - id: card-service
+          uri: lb://card-service
+          predicates:
+            - Path=/api/cards/**
+          filters:
+            - StripPrefix=0
+
+        - id: loan-service
+          uri: lb://loan-service
+          predicates:
+            - Path=/api/loans/**
+          filters:
+            - StripPrefix=0
+
+        - id: transaction-service
+          uri: lb://transaction-service
+          predicates:
+            - Path=/transactions/**
+          filters:
+            - StripPrefix=0
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+
   instance:
-    prefer-ip-address: true
+    hostname: ${RENDER_EXTERNAL_HOSTNAME}
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
 management:
   endpoints:
     web:
       exposure:
-        include: gateway,health
-
-logging:
-  level:
-    org.springframework.cloud.gateway: TRACE
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
