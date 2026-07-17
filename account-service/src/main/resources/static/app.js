@@ -138,21 +138,40 @@ const AUTH_URL = 'https://auth-service-YOURNAME.onrender.com'; // your auth serv
 // OR if using API Gateway:
 const AUTH_URL = 'https://api-gateway-mku9.onrender.com';
 
+// EMERGENCY MOCK - Bypass backend entirely
 function doLogin() {
     const email = document.getElementById('em').value;
     const password = document.getElementById('pw').value;
-if (email === 'shubham@gmail.com' && password === '123456') {
-        localStorage.setItem('token', 'mock-jwt-token');
+
+    // Mock validation
+    if (email === 'shubham@gmail.com' && password === '123456') {
+        localStorage.setItem('token', 'mock-jwt-token-12345');
         localStorage.setItem('user', JSON.stringify({
             name: 'Shubham Sharma',
-            email: 'shubham@gmail.com'
+            email: 'shubham@gmail.com',
+            role: 'USER'
         }));
         showDash();
     } else {
         document.getElementById('l-err').style.display = 'block';
-        document.getElementById('l-err').textContent = 'Invalid credentials';
+        document.getElementById('l-err').textContent = 'Invalid email or password';
     }
 }
+
+// Mock data for dashboard
+function loadDashboardData() {
+    // Mock accounts
+    document.getElementById('hero-num').innerHTML = '<span>₹</span>2,45,000';
+    document.getElementById('metric-accounts').textContent = '2';
+
+    // Mock transactions
+    const mockTxns = [
+        { date: '2026-07-15', desc: 'Salary Credit', account: 'ACC1234567890', type: 'CREDIT', amount: 50000, balance: 245000 },
+        { date: '2026-07-14', desc: 'Amazon Purchase', account: 'ACC1234567890', type: 'DEBIT', amount: 2500, balance: 195000 }
+    ];
+    // Render mockTxns to table...
+}
+
     console.log('Logging in:', email);
 
     fetch(`${AUTH_URL}/api/auth/login`, {
