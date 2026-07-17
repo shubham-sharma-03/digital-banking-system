@@ -5,16 +5,31 @@ spring:
   application:
     name: auth-service
 
+  main:
+    lazy-initialization: true
+
   datasource:
     url: jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
     username: neondb_owner
     password: npg_XpJGQHE46AIt
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
 
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
 
 eureka:
   client:
@@ -22,6 +37,9 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+    registry-fetch-interval-seconds: 10
 
   instance:
     prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
