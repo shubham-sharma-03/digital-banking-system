@@ -7,44 +7,53 @@ spring:
 
   cloud:
     gateway:
+
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "https://account-service-no0u.onrender.com"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - "*"
+            allowCredentials: true
+
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: lb://AUTH-SERVICE
           predicates:
             - Path=/api/auth/**
-          filters:
-            - StripPrefix=0
 
         - id: account-service
-          uri: lb://account-service
+          uri: lb://ACCOUNT-SERVICE
           predicates:
             - Path=/accounts/**
-          filters:
-            - StripPrefix=0
 
         - id: card-service
-          uri: lb://card-service
+          uri: lb://CARD-SERVICE
           predicates:
             - Path=/api/cards/**
-          filters:
-            - StripPrefix=0
 
         - id: loan-service
-          uri: lb://loan-service
+          uri: lb://LOAN-SERVICE
           predicates:
             - Path=/api/loans/**
-          filters:
-            - StripPrefix=0
 
         - id: transaction-service
-          uri: lb://transaction-service
+          uri: lb://TRANSACTION-SERVICE
           predicates:
             - Path=/transactions/**
-          filters:
-            - StripPrefix=0
 
 eureka:
   client:
