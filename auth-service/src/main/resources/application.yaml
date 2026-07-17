@@ -15,7 +15,13 @@ spring:
       ddl-auto: update
     show-sql: true
 
+
 eureka:
   client:
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
       defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+
+  instance:
+    prefer-ip-address: true
