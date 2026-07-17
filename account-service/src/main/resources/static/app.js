@@ -132,39 +132,37 @@ function fmtAmt(input) {
 }
 
 /* ── LOGIN ── */
-async function doLogin() {
-    const email = document.getElementById("em")?.value.trim();
-    const password = document.getElementById("pw")?.value;
-    const errBox = document.getElementById("l-err");
-    const btn = document.getElementById("l-submit");
 
-    if (errBox) errBox.classList.remove("show");
-    if (!email || !password) {
-        if (errBox) { errBox.textContent = "Please enter both email and password."; errBox.classList.add("show"); }
-        return;
-    }
+// Direct call to auth service (no Eureka/API Gateway needed for resume demo)
+const AUTH_URL = 'https://auth-service-YOURNAME.onrender.com'; // your auth service URL
+// OR if using API Gateway:
+const AUTH_URL = 'https://api-gateway-mku9.onrender.com';
 
-    if (btn) { btn.disabled = true; btn.textContent = "Signing in…"; }
+function doLogin() {
+    const email = document.getElementById('em').value;
+    const password = document.getElementById('pw').value;
 
-    try {
-        const data = await apiCall(`${AUTH_BASE}/api/auth/login`, {
-            method: "POST",
-            body: JSON.stringify({ email, password })
-        });
+    console.log('Logging in:', email);
 
-        session.token = data.token;
-        session.userId = data.userId;
-        session.email = data.email || email;
-        session.role = data.role;
-        session.name = data.name || data.username || email.split("@")[0];
-
-        await enterDashboard();
-    } catch (err) {
-        if (errBox) { errBox.textContent = "Incorrect credentials. Please try again."; errBox.classList.add("show"); }
-        showT(err.message || "Login failed", "err");
-    } finally {
-        if (btn) { btn.disabled = false; btn.textContent = "Sign In"; }
-    }
+    fetch(`${AUTH_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error('Login failed: ' + res.status);
+        return res.json();
+    })
+    .then(data => {
+        console.log('Login success:', data);
+        localStorage.setItem('token', data.token);
+        showDash();
+    })
+    .catch(err => {
+        console.error('Login error:', err);
+        document.getElementById('l-err').style.display = 'block';
+        document.getElementById('l-err').textContent = err.message;
+    });
 }
 
 function doOut() {
