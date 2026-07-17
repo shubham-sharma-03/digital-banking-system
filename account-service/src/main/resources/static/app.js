@@ -1,6 +1,7 @@
 /* ============================================================
    MyBank — app.js  (PRODUCTION FIXED v6 — TRANSACTION HISTORY FIX #2)
    ============================================================ */
+
 const AUTH_BASE = "https://auth-service-mzwa.onrender.com";
 const GATEWAY = "https://api-gateway-mku9.onrender.com";
 const ACCOUNT_BASE = GATEWAY;
