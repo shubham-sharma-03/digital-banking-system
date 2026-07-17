@@ -6,50 +6,29 @@ spring:
     name: auth-service
 
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/auth_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: ${DATABASE_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     hikari:
       connection-timeout: 20000
-      maximum-pool-size: 5
+      maximum-pool-size: 2
+      minimum-idle: 1
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     open-in-view: false
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health
   endpoint:
     health:
       show-details: never
 
-# FIX: Disable Eureka for now - it's causing startup crashes
-# If you need service discovery later, re-enable after all services are stable
-eureka:
-  client:
-    enabled: false
-    register-with-eureka: false
-    fetch-registry: false
-  # If you want to keep Eureka config for later:
-  # service-url:
-  #   defaultZone: https://eureka-server-lazp.onrender.com/eureka/
-
-# FIX: Disable Feign fallback if email service is down
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
-  circuitbreaker:
-    enabled: true
-
-# JWT config
 jwt:
   secret: ${JWT_SECRET:mybank-super-secret-key-for-jwt-signing-2026}
   expiration: 86400000
