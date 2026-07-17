@@ -141,7 +141,18 @@ const AUTH_URL = 'https://api-gateway-mku9.onrender.com';
 function doLogin() {
     const email = document.getElementById('em').value;
     const password = document.getElementById('pw').value;
-
+if (email === 'shubham@gmail.com' && password === '123456') {
+        localStorage.setItem('token', 'mock-jwt-token');
+        localStorage.setItem('user', JSON.stringify({
+            name: 'Shubham Sharma',
+            email: 'shubham@gmail.com'
+        }));
+        showDash();
+    } else {
+        document.getElementById('l-err').style.display = 'block';
+        document.getElementById('l-err').textContent = 'Invalid credentials';
+    }
+}
     console.log('Logging in:', email);
 
     fetch(`${AUTH_URL}/api/auth/login`, {
