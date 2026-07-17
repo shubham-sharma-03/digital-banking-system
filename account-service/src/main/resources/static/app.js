@@ -2,7 +2,7 @@
    MyBank — app.js  (PRODUCTION FIXED v6 — TRANSACTION HISTORY FIX #2)
    ============================================================ */
 
-const GATEWAY = "https://api-gateway-38a575b48dda.onrender.com";
+const GATEWAY = "https://api-gateway-mku9.onrender.com";
 const ACCOUNT_BASE = GATEWAY;
 const CARD_BASE = GATEWAY;
 const LOAN_BASE = GATEWAY;
