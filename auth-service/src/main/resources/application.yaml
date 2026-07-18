@@ -30,12 +30,19 @@ management:
     health:
       show-details: never
 
-# DISABLE Eureka - it's causing startup crashes on Render free tier
 eureka:
   client:
-    enabled: false
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+
+  instance:
+    hostname: ${RENDER_EXTERNAL_HOSTNAME}
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
 jwt:
   secret: ${JWT_SECRET:mybank-super-secret-key-for-jwt-signing-2026}
