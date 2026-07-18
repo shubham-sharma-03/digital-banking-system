@@ -132,16 +132,17 @@ function fmtAmt(input) {
 }
 
 /* ── LOGIN ── */
+
 function doLogin() {
     const email = document.getElementById('em').value;
     const password = document.getElementById('pw').value;
 
     console.log('Logging in:', email);
 
-    fetch(`${AUTH_BASE}/api/auth/login`, {
+    fetch('https://auth-service-mzwa.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email: email, password: password })
     })
     .then(res => {
         if (!res.ok) throw new Error('Login failed: ' + res.status);
@@ -152,16 +153,11 @@ function doLogin() {
         session.token = data.token;
         session.userId = data.userId;
         session.email = data.email;
-        session.name = data.name || email.split('@')[0];
+        session.name = data.name;
+        session.role = data.role;
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({
-            token: data.token,
-            userId: data.userId,
-            email: data.email,
-            name: data.name || email.split('@')[0],
-            role: data.role
-        }));
-        showDash();
+        localStorage.setItem('user', JSON.stringify(data));
+        enterDashboard();
     })
     .catch(err => {
         console.error('Login error:', err);
