@@ -7,21 +7,24 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:postgresql://postgres:5432/card_db
-    username: postgres
-    password: password
+    url: ${DATABASE_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka
+      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
   instance:
-    prefer-ip-address: true
+    hostname: ${RENDER_EXTERNAL_HOSTNAME}
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.value}
 
 management:
   endpoints:
