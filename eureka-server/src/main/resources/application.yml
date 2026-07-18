@@ -1,11 +1,14 @@
 server:
-  port: 8761
-
-spring:
-  application:
-    name: eureka-server
+  port: ${PORT:8761}
 
 eureka:
+  instance:
+    hostname: ${RENDER_EXTERNAL_HOSTNAME:eureka-server-lazp.onrender.com}
   client:
     register-with-eureka: false
     fetch-registry: false
+    service-url:
+      defaultZone: https://${RENDER_EXTERNAL_HOSTNAME:eureka-server-lazp.onrender.com}/eureka/
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 1000
