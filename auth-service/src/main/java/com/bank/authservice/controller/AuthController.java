@@ -48,6 +48,7 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> health() {
         Map<String, String> status = new HashMap<>();
         status.put("status", "UP");
+        status.put("service", "auth-service");
         return ResponseEntity.ok(status);
     }
 }
