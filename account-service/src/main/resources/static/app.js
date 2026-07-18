@@ -139,8 +139,8 @@ function doLogin() {
 
     console.log('Logging in:', email);
 
-    // Use AUTH_BASE directly, NOT GATEWAY
-    fetch(`${AUTH_BASE}/api/auth/login`, {
+    // HARD CODE THE AUTH URL - bypass gateway completely
+    fetch('https://auth-service-mzwa.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email, password: password })
