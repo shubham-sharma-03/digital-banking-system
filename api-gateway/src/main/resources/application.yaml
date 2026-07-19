@@ -54,7 +54,8 @@ eureka:
       defaultZone: https://digital-banking-system-production-2f87.up.railway.app/eureka/
 
   instance:
-    prefer-ip-address: true
+    hostname: ${RAILWAY_PRIVATE_DOMAIN}
+    prefer-ip-address: false
     instance-id: ${spring.application.name}:${random.value}
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 30
