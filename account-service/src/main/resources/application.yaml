@@ -1,14 +1,14 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
 
 spring:
   application:
     name: account-service
 
   datasource:
-    url: jdbc:postgresql://ep-snowy-recipe-av4429cf-pooler.c-11.us-east-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
-    username: neondb_owner
-    password: npg_XpJGQHE46AIt
+    url: ${DATABASE_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
@@ -23,6 +23,7 @@ eureka:
       defaultZone: https://digital-banking-system-production-2f87.up.railway.app/eureka/
 
   instance:
+    hostname: ${RAILWAY_PRIVATE_DOMAIN}
     prefer-ip-address: false
     instance-id: ${spring.application.name}:${random.value}
     lease-renewal-interval-in-seconds: 10
