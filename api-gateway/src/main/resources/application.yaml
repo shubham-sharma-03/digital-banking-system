@@ -1,35 +1,72 @@
+server:
+  port: ${PORT:9090}
+
 spring:
   application:
-    name: API-GATEWAY
+    name: api-gateway
 
   cloud:
     gateway:
-
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins:
-              - "https://spectacular-optimism-production-55b6.up.railway.app"
-
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-
-            allowedHeaders: "*"
-
-            allowCredentials: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
       routes:
-
-        - id: auth
-          uri: lb://AUTH-SERVICE
+        - id: auth-service
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
+          filters:
+            - StripPrefix=0
 
-        - id: account
-          uri: lb://ACCOUNT-SERVICE
+        - id: account-service
+          uri: lb://account-service
           predicates:
             - Path=/accounts/**
+          filters:
+            - StripPrefix=0
+
+        - id: card-service
+          uri: lb://card-service
+          predicates:
+            - Path=/api/cards/**
+          filters:
+            - StripPrefix=0
+
+        - id: loan-service
+          uri: lb://loan-service
+          predicates:
+            - Path=/api/loans/**
+          filters:
+            - StripPrefix=0
+
+        - id: transaction-service
+          uri: lb://transaction-service
+          predicates:
+            - Path=/transactions/**
+          filters:
+            - StripPrefix=0
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: https://digital-banking-system-production-2f87.up.railway.app/eureka/
+
+  instance:
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+jwt:
+  secret: ${JWT_SECRET:mybank-super-secret-key-for-jwt-signing-2026}
