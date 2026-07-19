@@ -1,12 +1,12 @@
 /* ============================================================
-   MyBank — app.js  (PRODUCTION FIXED v9 — CLEAN)
+   MyBank — app.js  (PRODUCTION FIXED v10 — RAILWAY)
    ============================================================ */
 
 // ✅ Auth service direct (bypass gateway for login)
-const AUTH_BASE = "https://auth-service-mzwa.onrender.com";
+const AUTH_BASE = "https://sweet-reverence-production-9b85.up.railway.app";
 
 // ✅ Gateway for other services
-const GATEWAY = "https://api-gateway-mku9.onrender.com";
+const GATEWAY = "https://imaginative-prosperity-production.up.railway.app";
 const ACCOUNT_BASE = GATEWAY;
 const CARD_BASE = GATEWAY;
 const LOAN_BASE = GATEWAY;
@@ -139,8 +139,7 @@ function doLogin() {
 
     console.log('Logging in:', email);
 
-    // HARD CODE THE AUTH URL - bypass gateway completely
-    fetch('https://auth-service-mzwa.onrender.com/api/auth/login', {
+    fetch('https://sweet-reverence-production-9b85.up.railway.app/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email, password: password })
@@ -370,8 +369,6 @@ function renderCards() {
     const visual = document.querySelector(".card-visual");
     const titleEl = document.querySelector(".card-title");
 
-    console.log("[MyBank] renderCards called, cards count:", state.cards?.length);
-
     if (!state.cards || state.cards.length === 0) {
         if (titleEl) titleEl.textContent = "No Cards";
         if (visual) {
@@ -495,8 +492,6 @@ async function requestNewCard() {
         return;
     }
 
-    console.log("Applying for card with account:", accountNumber);
-
     try {
         showT("Processing card request...", "ok");
         await apiCall(`${CARD_BASE}/api/cards/apply`, {
@@ -554,12 +549,10 @@ async function changeCardPin(cardId) {
 
 async function loadCardTransactions(cardId) {
     if (!cardId) { state.cardTransactions = []; renderCardTransactions(); return; }
-    console.log("[MyBank] loading card transactions for cardId:", cardId);
 
     try {
         const data = await apiCall(`${CARD_BASE}/api/cards/${cardId}/transactions`);
         state.cardTransactions = Array.isArray(data) ? data : [];
-        console.log("[MyBank] card transactions loaded:", state.cardTransactions.length);
     } catch (e) {
         console.warn("[MyBank] Card transactions load failed:", e.message);
         state.cardTransactions = [];
@@ -593,7 +586,6 @@ function renderCardTransactions() {
 
 async function loadLoans() {
     const customerId = session.userId ?? session.customerId ?? state.accounts[0]?.customerId ?? state.accounts[0]?.userId ?? 1;
-    console.log("[MyBank] loading loans for customerId =", customerId);
     try {
         const data = await apiCall(`${LOAN_BASE}/api/loans/customer/${customerId}`);
         state.loans = Array.isArray(data) ? data : [];
@@ -601,7 +593,6 @@ async function loadLoans() {
         state.loans = [];
         throw e;
     }
-    console.log("[MyBank] loans:", state.loans);
 }
 
 /* ── TRANSACTION MODULE ── */
@@ -626,8 +617,6 @@ async function loadTransactions() {
             .filter(Boolean)
     )];
 
-    console.log("[MyBank] Loading transactions for accounts:", accountNumbers);
-
     let allTransactions = [];
 
     for (const accNum of accountNumbers) {
@@ -638,7 +627,6 @@ async function loadTransactions() {
             try {
                 const data = await apiCall(`${TRANSACTION_BASE}/transactions/account/${encodeURIComponent(variant)}`);
                 if (Array.isArray(data) && data.length > 0) {
-                    console.log(`[MyBank] Transactions found for ${accNum} using format: ${variant} (${data.length} rows)`);
                     allTransactions = allTransactions.concat(data.map(txn => normalizeTransaction(txn)));
                     found = true;
                     break;
@@ -646,10 +634,6 @@ async function loadTransactions() {
             } catch (e) {
                 console.warn(`[MyBank] Failed variant ${variant} for ${accNum}:`, e.message);
             }
-        }
-
-        if (!found) {
-            console.warn(`[MyBank] No transactions found for any format variant of ${accNum}`);
         }
     }
 
@@ -665,8 +649,6 @@ async function loadTransactions() {
         seen.add(t.id);
         return true;
     });
-
-    console.log("[MyBank] Total unique transactions loaded:", state.transactions.length);
 
     renderTransactions();
 }
@@ -896,7 +878,6 @@ async function doTransfer() {
     const ifscCode = document.getElementById("tr-ifsc")?.value.trim() || "MYBNK000001";
     const remarks = document.getElementById("tr-remarks")?.value.trim() || "";
 
-    console.log("DEBUG →", {fromId, recipient, amount});
     const okBox = document.getElementById("tr-ok");
 
     if (!fromId) { showT("Select an account to transfer from.", "err"); return; }
@@ -1130,7 +1111,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const mo = document.getElementById("mo");
     if (mo) mo.addEventListener("click", e => { if (e.target === mo) closeMo(); });
 
-    // Check if already logged in
     const savedToken = localStorage.getItem('token');
     if (savedToken) {
         showDash();
