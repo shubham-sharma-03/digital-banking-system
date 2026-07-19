@@ -1,15 +1,18 @@
 server:
-  port: 8083
+  port: ${PORT:8083}
 
 spring:
   application:
     name: card-service
+
   main:
     allow-bean-definition-overriding: true
+
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,18 +23,18 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+
   instance:
-    hostname: ${RENDER_EXTERNAL_HOSTNAME}
-    prefer-ip-address: false
+    prefer-ip-address: true
     instance-id: ${spring.application.name}:${random.value}
 
 management:
   endpoints:
     web:
       exposure:
-        include: gateway,health
+        include: health,info
 
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
+    com.bank: INFO
