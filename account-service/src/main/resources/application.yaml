@@ -13,15 +13,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: https://eureka-server-lazp.onrender.com/eureka/
+      defaultZone: https://digital-banking-system-production-2f87.up.railway.app/eureka/
 
   instance:
-    hostname: account-service
     prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.value}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
