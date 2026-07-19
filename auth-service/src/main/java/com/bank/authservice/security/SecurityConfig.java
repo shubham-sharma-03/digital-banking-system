@@ -25,10 +25,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+
+                        // Public APIs
                         .requestMatchers(
-                                "/auth/**",
+                                "/api/auth/**",
                                 "/actuator/**"
                         ).permitAll()
+
                         .anyRequest().authenticated()
                 );
 
@@ -67,4 +70,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
