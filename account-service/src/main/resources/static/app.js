@@ -4,9 +4,8 @@
 
 // ✅ Auth service direct (bypass gateway for login)
 const AUTH_BASE = "https://sweet-reverence-production-9b85.up.railway.app";
-
 // ✅ Gateway for other services
-const GATEWAY = "https://imaginative-prosperity-production.up.railway.app";
+const API_BASE = "https://imaginative-prosperity-production.up.railway.app";
 const ACCOUNT_BASE = GATEWAY;
 const CARD_BASE = GATEWAY;
 const LOAN_BASE = GATEWAY;
@@ -134,36 +133,55 @@ function fmtAmt(input) {
 /* ── LOGIN ── */
 
 function doLogin() {
-    const email = document.getElementById('em').value;
-    const password = document.getElementById('pw').value;
 
-    console.log('Logging in:', email);
+    const email = document.getElementById("em").value;
+    const password = document.getElementById("pw").value;
 
-    fetch('https://sweet-reverence-production-9b85.up.railway.app/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password })
+    fetch(`${API_BASE}/api/auth/login`, {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            email,
+            password
+        })
+
     })
-    .then(res => {
-        if (!res.ok) throw new Error('Login failed: ' + res.status);
-        return res.json();
-    })
-    .then(data => {
-        console.log('Login success:', data);
+
+    .then(async res => {
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || "Login Failed");
+        }
+
         session.token = data.token;
         session.userId = data.userId;
         session.email = data.email;
         session.name = data.name;
         session.role = data.role;
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data));
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data));
+
         enterDashboard();
+
     })
+
     .catch(err => {
-        console.error('Login error:', err);
-        document.getElementById('l-err').style.display = 'block';
-        document.getElementById('l-err').textContent = err.message;
+
+        console.error(err);
+
+        document.getElementById("l-err").style.display = "block";
+        document.getElementById("l-err").innerText = err.message;
+
     });
+
 }
 
 function doOut() {
