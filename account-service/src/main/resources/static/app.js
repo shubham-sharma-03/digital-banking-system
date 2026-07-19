@@ -2,10 +2,9 @@
    MyBank — app.js  (PRODUCTION FIXED v10 — RAILWAY)
    ============================================================ */
 
-// ✅ Auth service direct (bypass gateway for login)
-const AUTH_BASE = "https://sweet-reverence-production-9b85.up.railway.app";
-// ✅ Gateway for other services
-const API_BASE = "https://imaginative-prosperity-production.up.railway.app";
+const GATEWAY = "https://imaginative-prosperity-production.up.railway.app";
+
+const API_BASE = GATEWAY;
 const ACCOUNT_BASE = GATEWAY;
 const CARD_BASE = GATEWAY;
 const LOAN_BASE = GATEWAY;
