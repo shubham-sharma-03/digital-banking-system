@@ -1,49 +1,36 @@
 server:
   port: ${PORT:8085}
-  address: 0.0.0.0
 
 spring:
   application:
-    name: auth-service
+    name: AUTH-SERVICE
 
   datasource:
     url: ${DATABASE_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    hikari:
-      connection-timeout: 20000
-      maximum-pool-size: 2
-      minimum-idle: 1
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
-    open-in-view: false
+    show-sql: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: https://digital-banking-system-production-2f87.up.railway.app/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+  instance:
+    prefer-ip-address: false
+    instance-id: ${spring.application.name}:${random.value}
 
 management:
   endpoints:
     web:
       exposure:
         include: health
-  endpoint:
-    health:
-      show-details: never
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: https://digital-banking-system-production-2f87.up.railway.app/eureka/
-
-  instance:
-    hostname: ${RAILWAY_PUBLIC_DOMAIN}
-    prefer-ip-address: false
-    instance-id: ${spring.application.name}:${random.value}
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
 
 jwt:
-  secret: ${JWT_SECRET:mybank-super-secret-key-for-jwt-signing-2026}
-  expiration: 86400000
+  secret: ${JWT_SECRET}

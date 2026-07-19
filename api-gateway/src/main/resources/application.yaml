@@ -1,80 +1,35 @@
-server:
-  port: ${PORT:9090}
-
 spring:
   application:
-    name: api-gateway
+    name: API-GATEWAY
 
   cloud:
-
     gateway:
-
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
 
       globalcors:
         cors-configurations:
           '[/**]':
             allowedOrigins:
               - "https://spectacular-optimism-production-55b6.up.railway.app"
+
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
               - OPTIONS
+
             allowedHeaders: "*"
+
             allowCredentials: true
 
       routes:
 
-        - id: auth-service
+        - id: auth
           uri: lb://AUTH-SERVICE
           predicates:
             - Path=/api/auth/**
 
-        - id: account-service
+        - id: account
           uri: lb://ACCOUNT-SERVICE
           predicates:
             - Path=/accounts/**
-
-        - id: card-service
-          uri: lb://CARD-SERVICE
-          predicates:
-            - Path=/api/cards/**
-
-        - id: loan-service
-          uri: lb://LOAN-SERVICE
-          predicates:
-            - Path=/api/loans/**
-
-        - id: transaction-service
-          uri: lb://TRANSACTION-SERVICE
-          predicates:
-            - Path=/transactions/**
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: https://digital-banking-system-production-2f87.up.railway.app/eureka/
-
-  instance:
-    prefer-ip-address: false
-    instance-id: ${spring.application.name}:${random.value}
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-
-  endpoint:
-    health:
-      show-details: always
-
-jwt:
-  secret: ${JWT_SECRET}
